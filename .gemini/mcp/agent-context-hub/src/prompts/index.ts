@@ -55,7 +55,7 @@ export async function registerPrompts(server: Server, logger: any, agentLoader: 
     const { name, arguments: args } = request.params;
 
     if (name === 'orchestrator_system') {
-      const agents = agentLoader.getAllAgents();
+      const agents = await agentLoader.getAllAgents();
       const agentList = args?.availableAgents || agents.map((a: LoadedAgent) => 
         `- ${a.name}: ${a.config.description}`
       ).join('\n');
@@ -137,7 +137,7 @@ When multiple tasks have no dependencies or the same dependencies, they can run 
 
     if (name === 'agent_execution') {
       const agentName = args?.agentName || 'unknown_agent';
-      const agent = agentLoader.getAgent(agentName);
+      const agent = await agentLoader.getAgent(agentName);
 
       return {
         description: 'Agent execution prompt',

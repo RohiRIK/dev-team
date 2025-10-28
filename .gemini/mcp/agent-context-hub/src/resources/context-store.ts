@@ -31,7 +31,7 @@ export function getTaskQueue(sessionId: string): Map<string, any> | undefined {
     return context?.tasks;
 }
 
-export function getAgentRegistry(agentLoader: AgentLoader): LoadedAgent[] {
+export async function getAgentRegistry(agentLoader: AgentLoader): Promise<LoadedAgent[]> {
     // For now, return a mock registry. In a real scenario, this would come from agentLoader.
-    return agentLoader.getAllAgents();
+    return await agentLoader.getAllAgents();
 }

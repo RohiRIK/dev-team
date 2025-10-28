@@ -1,0 +1,1 @@
+/Users/rohirikman/Library/CloudStorage/OneDrive-OnCloud/Terminal/Projects/dev-team/.gemini/launcher/target/release/gemini-launcher: /Users/rohirikman/Library/CloudStorage/OneDrive-OnCloud/Terminal/Projects/dev-team/.gemini/launcher/src/main.rs

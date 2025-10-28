@@ -1,0 +1,9 @@
+/Users/rohirikman/Library/CloudStorage/OneDrive-OnCloud/Terminal/Projects/dev-team/.gemini/launcher/target/release/deps/mac_notification_sys-16048c3652e82d0d.d: /Users/rohirikman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mac-notification-sys-0.6.8/src/lib.rs /Users/rohirikman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mac-notification-sys-0.6.8/src/error.rs /Users/rohirikman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mac-notification-sys-0.6.8/src/notification.rs
+
+/Users/rohirikman/Library/CloudStorage/OneDrive-OnCloud/Terminal/Projects/dev-team/.gemini/launcher/target/release/deps/libmac_notification_sys-16048c3652e82d0d.rlib: /Users/rohirikman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mac-notification-sys-0.6.8/src/lib.rs /Users/rohirikman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mac-notification-sys-0.6.8/src/error.rs /Users/rohirikman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mac-notification-sys-0.6.8/src/notification.rs
+
+/Users/rohirikman/Library/CloudStorage/OneDrive-OnCloud/Terminal/Projects/dev-team/.gemini/launcher/target/release/deps/libmac_notification_sys-16048c3652e82d0d.rmeta: /Users/rohirikman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mac-notification-sys-0.6.8/src/lib.rs /Users/rohirikman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mac-notification-sys-0.6.8/src/error.rs /Users/rohirikman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mac-notification-sys-0.6.8/src/notification.rs
+
+/Users/rohirikman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mac-notification-sys-0.6.8/src/lib.rs:
+/Users/rohirikman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mac-notification-sys-0.6.8/src/error.rs:
+/Users/rohirikman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mac-notification-sys-0.6.8/src/notification.rs:
