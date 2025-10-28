@@ -89,6 +89,17 @@ execute_agent("github-manager", "...", { mcpContext: { taskId: "task_123" }})
 get_task_status("task_123")
 ```
 
+```python
+# Create a task
+default_api.create_agent_task(agentName="github-manager", task="Update all READMEs", sessionId="my-session")
+
+# Execute with coordination
+default_api.execute_agent(agentName="github-manager", task="...", mcpContext={"taskId": "task_123"})
+
+# Track progress
+default_api.get_task_status(sessionId="my-session", taskId="task_123")
+```
+
 ### Using Agent Execution Hub
 
 To prepare and execute agents:
@@ -99,6 +110,14 @@ get_agent_config("github-manager")
 
 // Execute agent (returns config for agent-loader)
 execute_agent("github-manager", "Say hello")
+```
+
+```python
+# Load agent configuration
+default_api.get_agent_config(agentName="github-manager")
+
+# Execute agent (returns config for agent-loader)
+default_api.execute_agent(agentName="github-manager", task="Say hello")
 ```
 
 ## MCP Servers & Agents
