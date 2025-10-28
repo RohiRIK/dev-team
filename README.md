@@ -36,9 +36,7 @@ A complete multi-agent AI system with **Buddy** as the main orchestrator, managi
    bun install
    ```
 
-3. **Configure in Claude Desktop/VS Code:**
-   - The `.gemini/settings.json` file contains all MCP server configurations
-   - Buddy automatically has access to all servers and agents
+
 
 ## Usage
 
