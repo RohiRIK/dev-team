@@ -1,0 +1,8 @@
+{
+  "name": "finance-specialist",
+  "version": "1.0.0",
+  "description": "Provides comprehensive financial advice, planning, portfolio management, and investment analysis.",
+  "capabilities": ["financial_analysis", "portfolio_management", "data_analysis", "investment_advice", "financial_planning", "budgeting"],
+  "context_files": ["agents/finance-specialist/agent.md"],
+  "imports": ["../_shared/tools.md", "../_shared/context.md"]
+}

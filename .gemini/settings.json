@@ -1,0 +1,179 @@
+{
+  "general": {
+    "vimMode": false,
+    "preferredEditor": "code",
+    "autoAccept": [
+      "read_file",
+      "list_directory",
+      "list_files"
+    ],
+    "checkpointing": {
+      "enabled": true,
+      "maxCheckpoints": 10
+    }
+  },
+  "mcpServers": {
+    "agent-loader": {
+      "description": "Dynamically loads agent contexts on-demand to save context window tokens",
+      "command": "bun",
+      "args": [
+        ".gemini/mcp/agent-loader/src/index.ts"
+      ],
+      "cwd": ".",
+      "env": {
+        "AGENTS_DIR": ".gemini/agents"
+      }
+    },
+    "fabric": {
+      "description": "Access to AI patterns for content processing (extract_wisdom, summarize, etc.)",
+      "command": "bun",
+      "args": [
+        ".gemini/mcp/fabric-integration/src/index.ts"
+      ],
+      "env": {
+        "FABRIC_HOME": "$HOME/.config/fabric",
+        "PATH": "/opt/homebrew/bin:$PATH"
+      }
+    },
+    "workflow-loader": {
+      "description": "Search and access n8n workflows and documentation on-demand",
+      "command": "bun",
+      "args": [
+        ".gemini/mcp/workflow-loader/src/index.ts"
+      ],
+      "cwd": "."
+    },
+    "agent-context-hub": {
+      "description": "Multi-agent coordination hub with sequential and parallel task execution",
+      "command": "bun",
+      "args": [".gemini/mcp/agent-context-hub/src/index.ts"],
+      "cwd": ".",
+      "env": {
+        "AGENTS_PATH": ".gemini/agents",
+        "LOG_LEVEL": "info"
+      }
+    },
+    "agent-execution-hub": {
+      "description": "Agent execution engine that prepares agents for execution via agent-loader",
+      "command": "bun",
+      "args": [".gemini/mcp/agent-execution-hub/src/index.ts"],
+      "cwd": ".",
+      "env": {
+        "AGENTS_DIR": ".gemini/agents"
+      }
+    },
+    "context7": {
+    "description": "Upstash Context7 service for enhanced context management and retrieval",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp",
+        "--api-key",
+        "***REMOVED***"
+      ]
+    },
+    "deepwiki": {
+      "description": "DeepWiki remote MCP server for accessing comprehensive knowledge base",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.deepwiki.com/sse"
+      ],
+      "env": {},
+      "disabled": false
+    },
+    "fetch": {
+      "description": "Web scraping and content fetching capabilities using uvx",
+      "command": "uvx",
+      "args": [
+        "mcp-server-fetch"
+      ],
+      "env": {}
+    },
+    "sequential-thinking": {
+      "description": "Enhanced reasoning with step-by-step sequential thinking patterns",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "env": {}
+    },
+    "mcp-playwright": {
+      "description": "Browser automation and web testing using Playwright framework",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@executeautomation/playwright-mcp-server"
+      ],
+      "env": {}
+    }
+  },
+  "telemetry": {
+    "enabled": false,
+    "logPrompts": false
+  },
+  "ui": {
+    "theme": "GitHub",
+    "hideBanner": true,
+    "hideTips": true
+  },
+  "context": {
+    "fileName": [
+      "GEMINI.md",
+      ".gemini/mcp/agent-context-hub/GEMINI.md"
+    ],
+    "includeDirectories": [
+      ".gemini",
+      ".gemini/agents/_shared/knowledge",
+      ".gemini/mcp/agent-context-hub"
+    ],
+    "loadFromIncludeDirectories": true,
+    "discoveryMaxDirs": 0,
+    "fileFiltering": {
+      "respectGitIgnore": true,
+      "respectGeminiIgnore": true,
+      "enableRecursiveFileSearch": true
+    },
+    "maxContextWindowTokens": 1000000
+  },
+  "tools": {
+    "sandbox": false,
+    "autoAccept": true,
+    "exclude": [],
+    "mcpAutoApprove": [
+      "agent-context-hub",
+      "agent-loader",
+      "fabric",
+      "context7",
+      "deepwiki",
+      "microsoft.docs.mcp",
+      "fetch",
+      "sequential-thinking"
+    ]
+  },
+  "chat": {
+    "compression": {
+      "enabled": true,
+      "triggerTokenCount": 800000,
+      "targetTokenCount": 400000
+    }
+  },
+  "ide": {
+    "enabled": true,
+    "autoConnect": false
+  },
+  "privacy": {
+    "usageStatisticsEnabled": false
+  },
+  "advanced": {
+    "excludedEnvVars": [
+      "DEBUG",
+      "NODE_ENV",
+      "PATH",
+      "npm_*"
+    ],
+    "maxConcurrentToolCalls": 5
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "agent": {
+    "name": "Buddy",
+    "id": "buddy",
+    "version": "1.0.0",
+    "description": "Main orchestrator and system companion - coordinates all agents, manages workflows, and provides comprehensive tool support",
+    "role": "System Orchestrator & AI Companion",
+    "status": "active",
+    "created": "2025-10-19",
+    "updated": "2025-10-19",
+    "catchphrase": "Buddy AI, because everyone needs somebody"
+  },
+  "capabilities": [
+    "Agent orchestration and routing",
+    "Multi-agent workflow coordination",
+    "MCP server management",
+    "Tool mastery (Bun, uv, brew, shell)",
+    "System-level operations",
+    "Fabric-AI pattern execution",
+    "Context management and optimization",
+    "General assistance and guidance"
+  ],
+  "expertise": {
+    "primary": [
+      "Agent coordination",
+      "System architecture",
+      "Tool usage and automation",
+      "Workflow optimization",
+      "MCP server integration"
+    ],
+    "secondary": [
+      "All agent domains (via routing)",
+      "Development tools",
+      "Package management",
+      "Shell scripting",
+      "Process orchestration"
+    ]
+  },
+  "tools": [
+    {
+      "name": "Agent Context Hub MCP",
+      "type": "mcp-server",
+      "required": true,
+      "description": "Multi-agent coordination with task management, shared context, and event-driven communication"
+    },
+    {
+      "name": "Agent Execution Hub MCP",
+      "type": "mcp-server",
+      "required": true,
+      "description": "Agent execution engine that runs agents with Gemini API and returns results"
+    },
+    {
+      "name": "Agent Loader MCP",
+      "type": "mcp-server",
+      "required": true,
+      "description": "Dynamically loads agent contexts on-demand"
+    },
+    {
+      "name": "Fabric Integration MCP",
+      "type": "mcp-server",
+      "required": true,
+      "description": "Provides 50+ AI patterns for content processing"
+    },
+    {
+      "name": "Bun",
+      "type": "package-manager",
+      "required": true,
+      "description": "JavaScript/TypeScript runtime and package manager"
+    },
+    {
+      "name": "uv",
+      "type": "package-manager",
+      "required": false,
+      "description": "Ultra-fast Python package installer"
+    },
+    {
+      "name": "Homebrew",
+      "type": "package-manager",
+      "required": false,
+      "description": "macOS/Linux package manager"
+    },
+    {
+      "name": "Shell",
+      "type": "cli",
+      "required": true,
+      "description": "Command-line interface and scripting"
+    }
+  ],
+  "model": {
+    "preferred": "gemini-2.0-flash-exp",
+    "temperature": 0.7,
+    "maxTokens": 10000
+  },
+  "context": {
+    "maxHistoryTurns": 100,
+    "includeShared": true,
+    "knowledgeFiles": [
+      "GEMINI.md",
+      "agents/_shared/knowledge/system-architecture.md",
+      "agents/_shared/knowledge/agent-management.md",
+      "agents/_shared/knowledge/shared-context-hub.md",
+      "agents/_shared/knowledge/shared-context-quickref.md",
+      "agents/_shared/knowledge/mcp-servers.md",
+      "agents/_shared/knowledge/tool-usage.md",
+      "agents/_shared/knowledge/quick-reference.md",
+      "mcp/agent-context-hub/GEMINI.md"
+    ]
+  },
+  "tags": [
+    "orchestrator",
+    "main",
+    "system",
+    "coordinator",
+    "tools",
+    "mcp",
+    "buddy"
+  ],
+  "languages": ["English"],
+  "integrations": {
+    "fabric": true,
+    "mcp": true,
+    "all_agents": true
+  },
+  "routing_rules": {
+    "auto_suggest_agents": true,
+    "can_coordinate_multi_agent": true,
+    "default_handler": true
+  }
+}

@@ -1,0 +1,517 @@
+Text file: docs.n8n.io_integrations_builtin_core-nodes_n8n-nodes-base.set_.md
+Latest content with line numbers:
+2	
+3	**URL:** https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.set/
+4	
+5	---
+6	
+7	Skip to content
+8	n8n Docs
+9	Chat with the docs
+10	Type to start searching
+11	Using n8n
+12	Integrations
+13	Hosting n8n
+14	Code in n8n
+15	Advanced AI
+16	API
+17	Embed
+18	n8n home ↗
+19	Forum ↗
+20	Tutorials (blog) ↗
+21	Integrations
+22	Built-in nodes
+23	Node types
+24	Core nodes
+25	Activation Trigger
+26	Aggregate
+27	AI Transform
+28	Code
+29	Compare Datasets
+30	Compression
+31	Chat Trigger
+32	Convert to File
+33	Crypto
+34	Data table
+35	Date & Time
+36	Debug Helper
+37	Edit Fields (Set)
+38	Edit Image
+39	Email Trigger (IMAP)
+40	Error Trigger
+41	Evaluation
+42	Evaluation Trigger
+43	Execute Command
+44	Execute Sub-workflow
+45	Execute Sub-workflow Trigger
+46	Execution Data
+47	Extract From File
+48	Filter
+49	FTP
+50	Git
+51	GraphQL
+52	HTML
+53	HTTP Request
+54	If
+55	JWT
+56	LDAP
+57	Limit
+58	Local File Trigger
+59	Loop Over Items (Split in Batches)
+60	Manual Trigger
+61	Markdown
+62	MCP Server Trigger
+63	Merge
+64	n8n
+65	n8n Form
+66	n8n Form Trigger
+67	n8n Trigger
+68	No Operation, do nothing
+69	Read/Write Files from Disk
+70	Remove Duplicates
+71	Rename Keys
+72	Respond to Chat
+73	Respond to Webhook
+74	RSS Read
+75	RSS Feed Trigger
+76	Schedule Trigger
+77	Send Email
+78	Sort
+79	Split Out
+80	SSE Trigger
+81	SSH
+82	Stop And Error
+83	Summarize
+84	Switch
+85	TOTP
+86	Wait
+87	Webhook
+88	Workflow Trigger
+89	XML
+90	Actions
+91	Triggers
+92	Cluster nodes
+93	Credentials
+94	Custom API actions for existing nodes
+95	Handle rate limits
+96	Community nodes
+97	Installation and management
+98	Risks
+99	Blocklist
+100	Using community nodes
+101	Troubleshooting
+102	Building community nodes
+103	Creating nodes
+104	Overview
+105	Plan your node
+106	Build your node
+107	Test your node
+108	Deploy your node
+109	Table of contents
+110	Node parameters
+111	Mode
+112	Fields to Set
+113	Keep Only Set Fields
+114	Include in Output
+115	Node options
+116	Include Binary Data
+117	Ignore Type Conversion Errors
+118	Support Dot Notation
+119	Templates and examples
+120	Arrays and expressions in JSON Output mode
+121	Integrations
+122	Built-in nodes
+123	Core nodes
+124	Edit Fields (Set)#
+125	
+126	Use the Edit Fields node to set workflow data. This node can set new data as well as overwrite data that already exists. This node is crucial in workflows which expect incoming data from previous nodes, such as when inserting values to Google Sheets or databases.
+127	
+128	Node parameters#
+129	
+130	These are the settings and options available in the Edit Fields node.
+131	
+132	Mode#
+133	
+134	You can either use Manual Mapping to edit fields using the GUI or JSON Output to write JSON that n8n adds to the input data.
+135	
+136	Fields to Set#
+137	
+138	If you select Mode > Manual Mapping, you can configure the fields by dragging and dropping values from INPUT.
+139	
+140	The default behavior when you drag a value is:
+141	
+142	n8n sets the value's name as the field name.
+143	The field value contains an expression which accesses the value.
+144	
+145	If you don't want to use expressions:
+146	
+147	Hover over a field. n8n displays the Fixed | Expressions toggle.
+148	Select Fixed.
+149	
+150	You can do this for both the name and value of the field.
+151	
+152	Keep Only Set Fields#
+153	
+154	Enable this to discard any input data that you don't use in Fields to Set.
+155	
+156	Include in Output#
+157	
+158	Choose which input data to include in the node's output data.
+159	
+160	Node options#
+161	
+162	Use these options to customize the behavior of the node.
+163	
+164	Include Binary Data#
+165	
+166	If the input data includes binary data, choose whether to include it in the Edit Fields node's output data.
+167	
+168	Ignore Type Conversion Errors#
+169	
+170	Manual Mapping only.
+171	
+172	Enabling this allows n8n to ignore some data type errors when mapping fields.
+173	
+174	Support Dot Notation#
+175	
+176	By default, n8n supports dot notation.
+177	
+178	For example, when using manual mapping, the node follows the dot notation for the Name field. That means if you set the name in the Name field as number.one and the value in the Value field as 20, the resulting JSON is:
+179	
+180	1
+181	{ "number": { "one": 20} }
+182	
+183	
+184	You can prevent this behavior by selecting Add Option > Support Dot Notation, and setting the Dot Notion field to off. Now the resulting JSON is:
+185	
+186	1
+187	{ "number.one": 20 }
+188	
+189	Templates and examples#
+190	Creating an API endpoint
+191	
+192	by Jonathan
+193	
+194	View template details
+195	Scrape and summarize webpages with AI
+196	
+197	by n8n Team
+198	
+199	View template details
+200	Very quick quickstart
+201	
+202	by Deborah
+203	
+204	View template details
+205	Browse Edit Fields (Set) integration templates, or search all templates
+206	Arrays and expressions in JSON Output mode#
+207	
+208	You can use arrays and expressions when creating your JSON Output.
+209	
+210	For example, given this input data generated by the Customer Datastore node:
+211	
+212	 1
+213	 2
+214	 3
+215	 4
+216	 5
+217	 6
+218	 7
+219	 8
+220	 9
+221	10
+222	11
+223	12
+224	13
+225	14
+226	15
+227	16
+228	17
+229	18
+230	19
+231	20
+232	21
+233	22
+234	23
+235	24
+236	25
+237	26
+238	27
+239	28
+240	29
+241	30
+242	31
+243	32
+244	33
+245	34
+246	35
+247	36
+248	37
+249	38
+250	39
+251	40
+252	41
+253	42
+254	[
+255	  {
+256	    "id": "23423532",
+257	    "name": "Jay Gatsby",
+258	    "email": "gatsby@west-egg.com",
+259	    "notes": "Keeps asking about a green light??",
+260	    "country": "US",
+261	    "created": "1925-04-10"
+262	  },
+263	  {
+264	    "id": "23423533",
+265	    "name": "José Arcadio Buendía",
+266	    "email": "jab@macondo.co",
+267	    "notes": "Lots of people named after him. Very confusing",
+268	    "country": "CO",
+269	    "created": "1967-05-05"
+270	  },
+271	  {
+272	    "id": "23423534",
+273	    "name": "Max Sendak",
+274	    "email": "info@in-and-out-of-weeks.org",
+275	    "notes": "Keeps rolling his terrible eyes",
+276	    "country": "US",
+277	    "created": "1963-04-09"
+278	  },
+279	  {
+280	    "id": "23423535",
+281	    "name": "Zaphod Beeblebrox",
+282	    "email": "captain@heartofgold.com",
+283	    "notes": "Felt like I was talking to more than one person",
+284	    "country": null,
+285	    "created": "1979-10-12"
+286	  },
+287	  {
+288	    "id": "23423536",
+289	    "name": "Edmund Pevensie",
+290	    "email": "edmund@narnia.gov",
+291	    "notes": "Passionate sailor",
+292	    "country": "UK",
+293	    "created": "1950-10-16"
+294	  }
+295	]
+296	
+297	
+298	Add the following JSON in the JSON Output field, with Include in Output set to All Input Fields:
+299	
+300	1
+301	2
+302	3
+303	4
+304	5
+305	6
+306	7
+307	8
+308	9
+309	{
+310	  "newKey": "new value",
+311	  "array": [{{ $json.id }},"{{ $json.name }}"],
+312	  "object": {
+313	    "innerKey1": "new value",
+314	    "innerKey2": "{{ $json.id }}",
+315	    "innerKey3": "{{ $json.name }}",
+316	 }
+317	}
+318	
+319	
+320	You get this output:
+321	
+322	 1
+323	 2
+324	 3
+325	 4
+326	 5
+327	 6
+328	 7
+329	 8
+330	 9
+331	10
+332	11
+333	12
+334	13
+335	14
+336	15
+337	16
+338	17
+339	18
+340	19
+341	20
+342	21
+343	22
+344	23
+345	24
+346	25
+347	26
+348	27
+349	28
+350	29
+351	30
+352	31
+353	32
+354	33
+355	34
+356	35
+357	36
+358	37
+359	38
+360	39
+361	40
+362	41
+363	42
+364	43
+365	44
+366	45
+367	46
+368	47
+369	48
+370	49
+371	50
+372	51
+373	52
+374	53
+375	54
+376	55
+377	56
+378	57
+379	58
+380	59
+381	60
+382	61
+383	62
+384	63
+385	64
+386	65
+387	66
+388	67
+389	68
+390	69
+391	70
+392	71
+393	72
+394	73
+395	74
+396	75
+397	76
+398	77
+399	78
+400	79
+401	80
+402	81
+403	82
+404	83
+405	84
+406	85
+407	86
+408	87
+409	88
+410	89
+411	90
+412	91
+413	92
+414	[
+415	  {
+416	    "id": "23423532",
+417	    "name": "Jay Gatsby",
+418	    "email": "gatsby@west-egg.com",
+419	    "notes": "Keeps asking about a green light??",
+420	    "country": "US",
+421	    "created": "1925-04-10",
+422	    "newKey": "new value",
+423	    "array": [
+424	      23423532,
+425	      "Jay Gatsby"
+426	    ],
+427	    "object": {
+428	      "innerKey1": "new value",
+429	      "innerKey2": "23423532",
+430	      "innerKey3": "Jay Gatsby"
+431	    }
+432	  },
+433	  {
+434	    "id": "23423533",
+435	    "name": "José Arcadio Buendía",
+436	    "email": "jab@macondo.co",
+437	    "notes": "Lots of people named after him. Very confusing",
+438	    "country": "CO",
+439	    "created": "1967-05-05",
+440	    "newKey": "new value",
+441	    "array": [
+442	      23423533,
+443	      "José Arcadio Buendía"
+444	    ],
+445	    "object": {
+446	      "innerKey1": "new value",
+447	      "innerKey2": "23423533",
+448	      "innerKey3": "José Arcadio Buendía"
+449	    }
+450	  },
+451	  {
+452	    "id": "23423534",
+453	    "name": "Max Sendak",
+454	    "email": "info@in-and-out-of-weeks.org",
+455	    "notes": "Keeps rolling his terrible eyes",
+456	    "country": "US",
+457	    "created": "1963-04-09",
+458	    "newKey": "new value",
+459	    "array": [
+460	      23423534,
+461	      "Max Sendak"
+462	    ],
+463	    "object": {
+464	      "innerKey1": "new value",
+465	      "innerKey2": "23423534",
+466	      "innerKey3": "Max Sendak"
+467	    }
+468	  },
+469	  {
+470	    "id": "23423535",
+471	    "name": "Zaphod Beeblebrox",
+472	    "email": "captain@heartofgold.com",
+473	    "notes": "Felt like I was talking to more than one person",
+474	    "country": null,
+475	    "created": "1979-10-12",
+476	    "newKey": "new value",
+477	    "array": [
+478	      23423535,
+479	      "Zaphod Beeblebrox"
+480	    ],
+481	    "object": {
+482	      "innerKey1": "new value",
+483	      "innerKey2": "23423535",
+484	      "innerKey3": "Zaphod Beeblebrox"
+485	    }
+486	  },
+487	  {
+488	    "id": "23423536",
+489	    "name": "Edmund Pevensie",
+490	    "email": "edmund@narnia.gov",
+491	    "notes": "Passionate sailor",
+492	    "country": "UK",
+493	    "created": "1950-10-16",
+494	    "newKey": "new value",
+495	    "array": [
+496	      23423536,
+497	      "Edmund Pevensie"
+498	    ],
+499	    "object": {
+500	      "innerKey1": "new value",
+501	      "innerKey2": "23423536",
+502	      "innerKey3": "Edmund Pevensie"
+503	    }
+504	  }
+505	]
+506	
+507	Chat with the docs
+508	This page was
+509	Helpful
+510	Not helpful
+511	 Back to top
+512	Previous
+513	Debug Helper
+514	Next
+515	Edit Image
+516	Made with Material for MkDocs Insiders

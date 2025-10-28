@@ -1,0 +1,15 @@
+{
+  "agent": {
+    "name": "devops-engineer",
+    "version": "1.0.0",
+    "description": "Assists with deployment, infrastructure-as-code, Docker, and Kubernetes-related tasks.",
+    "role": "Expert in automation, containerization, and Infrastructure as Code (IaC)"
+  },
+  "capabilities": ["ci_cd", "iac", "containerization", "orchestration"],
+  "expertise": {
+    "primary": ["Docker", "Kubernetes", "GitHub Actions", "Terraform"],
+    "secondary": ["CI/CD", "IaC"]
+  },
+  "context_files": ["agents/devops-engineer/agent.md"],
+  "imports": ["../_shared/tools.md", "../_shared/context.md"]
+}
