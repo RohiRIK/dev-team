@@ -124,7 +124,7 @@ default_api.execute_agent(agentName="github-manager", task="Say hello")
 
 ## MCP Servers & Agents
 
-This system leverages several Model Context Protocol (MCP) servers for agent coordination and execution, and includes over 29 specialized agents. For detailed information on each MCP server and agent, please refer to their respective directories within `.gemini/mcp/` and `.gemini/agents/`.
+This system leverages several Model Context Protocol (MCP) servers for agent coordination and execution, and includes 26 specialized agents. For detailed information on each MCP server and agent, please refer to their respective directories within `.gemini/mcp/` and `.gemini/agents/`.
 
 ## Contributing
 
