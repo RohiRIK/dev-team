@@ -2,42 +2,7 @@
 
 A complete multi-agent AI system with **Buddy** as the main orchestrator, managing 29+ specialized agents through an advanced coordination and execution architecture.
 
-## Overview
 
-This system provides a powerful multi-agent platform where **Buddy** orchestrates specialized agents using two key MCP servers:
-
-- **Agent Context Hub**: Coordinates tasks, manages shared context, and enables event-driven communication
-- **Agent Execution Hub**: Prepares and executes agents dynamically via agent-loader
-- **29+ Specialized Agents**: Each agent is an expert in their domain (GitHub, security, infrastructure, etc.)
-
-The architecture enables sequential and parallel task execution, workflow automation, and seamless agent collaboration.
-
-## Architecture
-
-```
-┌──────────────────────────────────────────────┐
-│           Buddy (Orchestrator)               │
-│  - Coordinates all agents                    │
-│  - Routes tasks                              │
-│  - Manages workflows                         │
-└────────┬────────────────────────┬────────────┘
-         │                        │
-         ▼                        ▼
-┌────────────────┐      ┌────────────────────┐
-│ Context Hub    │      │ Execution Hub      │
-│                │      │                    │
-│ • Tasks        │◄────►│ • Prepare agents   │
-│ • Context      │      │ • Load configs     │
-│ • Events       │      │ • Agent-loader     │
-└────────────────┘      └────────────────────┘
-         │                        │
-         └────────┬───────────────┘
-                  │
-         ┌────────┴────────┐
-         │                 │
-         ▼                 ▼
-    [29+ Agents]      [Results]
-```
 
 ## Getting Started
 
