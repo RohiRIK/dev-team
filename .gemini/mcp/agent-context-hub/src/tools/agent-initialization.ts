@@ -28,7 +28,7 @@ export async function initializeAgent(
   const { sessionId, agentName, clearPreviousContext = true } = params;
 
   // Load complete agent context (config, prompts, knowledge, tools)
-  const loadedAgent: LoadedAgent | undefined = agentLoader.getAgent(agentName);
+  const loadedAgent: LoadedAgent | undefined = await agentLoader.getAgent(agentName);
 
   if (!loadedAgent) {
     throw new Error(`Agent '${agentName}' not found in agent registry`);

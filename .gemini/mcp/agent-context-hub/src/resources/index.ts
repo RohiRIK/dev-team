@@ -13,7 +13,7 @@ export async function registerResources(server: Server, logger: any, agentLoader
   
   // List all available resources (MCP Primitive)
   server.setRequestHandler(ListResourcesRequestSchema, async () => {
-    const agents = agentLoader.getAllAgents();
+    const agents = await agentLoader.getAllAgents();
     const resources = [
       {
         uri: 'agent://registry',
@@ -80,7 +80,7 @@ export async function registerResources(server: Server, logger: any, agentLoader
     if (uri.startsWith('agent://')) {
       const parts = uri.replace('agent://', '').split('/');
       const agentName = parts[0];
-      const agent = agentLoader.getAgent(agentName);
+      const agent = await agentLoader.getAgent(agentName);
 
       if (!agent) throw new Error(`Agent ${agentName} not found`);
 
