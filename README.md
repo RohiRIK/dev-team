@@ -2,6 +2,33 @@
 
 A complete multi-agent AI system with **Buddy** as the main orchestrator, managing 29+ specialized agents through an advanced coordination and execution architecture.
 
+## Architecture
+
+```
+┌──────────────────────────────────────────────┐
+│           Buddy (Orchestrator)               │
+│  - Coordinates all agents                    │
+│  - Routes tasks                              │
+│  - Manages workflows                         │
+└────────┬────────────────────────┬────────────┘
+         │                        │
+         ▼                        ▼
+┌────────────────┐      ┌────────────────────┐
+│ Context Hub    │      │ Execution Hub      │
+│                │      │                    │
+│ • Tasks        │◄────►│ • Prepare agents   │
+│ • Context      │      │ • Load configs     │
+│ • Events       │      │ • Agent-loader     │
+└────────────────┘      └────────────────────┘
+         │                        │
+         └────────┬───────────────┘
+                  │
+         ┌────────┴────────┐
+         │                 │
+         ▼                 ▼
+    [29+ Agents]      [Results]
+```
+
 
 
 ## Getting Started
