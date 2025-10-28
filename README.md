@@ -4,6 +4,8 @@ A complete multi-agent AI system with **Buddy** as the main orchestrator, managi
 
 ## Architecture
 
+The system's architecture is centered around Buddy, the orchestrator, which manages various specialized agents through two key Model Context Protocol (MCP) servers: the Context Hub for task coordination and shared context, and the Execution Hub for dynamic agent preparation and execution. This setup allows for flexible and scalable multi-agent workflows.
+
 ```
 ┌──────────────────────────────────────────────┐
 │           Buddy (Orchestrator)               │
