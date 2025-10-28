@@ -74,38 +74,9 @@ get_agent_config("github-manager")
 execute_agent("github-manager", "Say hello")
 ```
 
-## MCP Servers
+## MCP Servers & Agents
 
-### Agent Context Hub
-**Location**: `.gemini/mcp/agent-context-hub`
-
-**Tools**: `create_agent_task`, `update_task_status`, `get_task_status`, `get_ready_tasks`, `store_context`, `get_context`, `subscribe_to_topics`, `publish_event`, `initialize_agent`, `execute_workflow`
-
-### Agent Execution Hub
-**Location**: `.gemini/mcp/agent-execution-hub`
-
-**Tools**: `execute_agent`, `get_agent_config`, `get_execution_status`, `cancel_execution`, `list_active_executions`
-
-### Agent Loader
-**Location**: `.gemini/mcp/agent-loader`
-
-**Tools**: Dynamically loads agent contexts on-demand
-
-## Agents
-
-**29+ Specialized Agents** organized by domain:
-
-- **Development**: github-manager, code-analyzer, test-engineer
-- **Infrastructure**: infrastructure-engineer, docker-specialist, kubernetes-expert
-- **Security**: security-scanner, compliance-auditor
-- **Data**: data-engineer, ml-engineer
-- And many more...
-
-Each agent is located in `.gemini/agents/<agent-name>/` with:
-- `agent.json` - Configuration
-- `agent.md` - System prompt
-- `knowledge/` - Domain-specific knowledge
-- `tools/` - Agent-specific tools
+This system leverages several Model Context Protocol (MCP) servers for agent coordination and execution, and includes over 29 specialized agents. For detailed information on each MCP server and agent, please refer to their respective directories within `.gemini/mcp/` and `.gemini/agents/`.
 
 ## Contributing
 
