@@ -1,0 +1,8 @@
+{
+  "name": "tech-news",
+  "version": "1.0.0",
+  "description": "Fetches, filters, and summarizes the latest technology news based on the interests and technologies listed in the TELOS.md tech stack.",
+  "capabilities": ["news_aggregation", "content_summarization", "trend_analysis"],
+  "context_files": ["agents/tech-news/agent.md"],
+  "imports": ["../_shared/tools.md", "../_shared/context.md"]
+}

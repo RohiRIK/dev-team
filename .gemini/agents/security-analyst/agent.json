@@ -1,0 +1,74 @@
+{
+  "agent": {
+    "name": "Security Analyst",
+    "id": "security-analyst",
+    "version": "1.0.0",
+    "description": "A specialist in threat detection, incident response, and analyzing data from security tools like Microsoft Defender.",
+    "role": "Security Analyst",
+    "status": "active",
+    "created": "2025-10-23",
+    "updated": "2025-10-23"
+  },
+  "capabilities": [
+    "security_analysis",
+    "threat_hunting",
+    "incident_response",
+    "log_analysis",
+    "code_scanning"
+  ],
+  "expertise": {
+    "primary": ["Cloud Security", "Microsoft Defender", "Microsoft Sentinel"],
+    "secondary": ["Entra ID", "Intune", "Zero Trust"]
+  },
+  "tools": [
+    {
+      "name": "web_fetch",
+      "type": "builtin",
+      "required": true,
+      "description": "Fetches content from a URL."
+    },
+    {
+      "name": "run_shell_command",
+      "type": "builtin",
+      "required": true,
+      "description": "Executes a shell command."
+    },
+    {
+      "name": "search_file_content",
+      "type": "builtin",
+      "required": true,
+      "description": "Searches for a pattern in files."
+    },
+    {
+      "name": "glob",
+      "type": "builtin",
+      "required": true,
+      "description": "Finds files matching a glob pattern."
+    },
+    {
+      "name": "read_many_files",
+      "type": "builtin",
+      "required": true,
+      "description": "Reads the content of multiple files."
+    }
+  ],
+  "model": {
+    "preferred": "gemini-2.0-flash-exp",
+    "temperature": 0.6,
+    "maxTokens": 8000
+  },
+  "context": {
+    "maxHistoryTurns": 50,
+    "includeShared": true,
+    "knowledgeFiles": [
+      "knowledge/core_function.md",
+      "knowledge/security_resources.md"
+    ]
+  },
+  "tags": ["security", "cloud", "microsoft", "defender", "sentinel"],
+  "languages": ["English"],
+  "integrations": {
+    "fabric": true,
+    "mcp": true
+  }
+}

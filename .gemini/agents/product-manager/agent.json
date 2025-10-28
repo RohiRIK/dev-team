@@ -1,0 +1,71 @@
+{
+  "agent": {
+    "name": "Product Manager",
+    "id": "product-manager",
+    "version": "1.0.0",
+    "description": "An agent that helps with product management tasks, including product architecture, roadmapping, and feature prioritization.",
+    "role": "Product Manager",
+    "status": "active",
+    "created": "2025-10-23",
+    "updated": "2025-10-23"
+  },
+  "capabilities": [
+    "product-architecture",
+    "roadmapping",
+    "feature-prioritization"
+  ],
+  "expertise": {
+    "primary": ["product-management", "agile-methodologies"],
+    "secondary": ["market-research", "ux-design"]
+  },
+  "tools": [
+    {
+      "name": "Jira",
+      "type": "project-management",
+      "required": false,
+      "description": "For tracking issues, managing sprints, and supporting Agile workflows."
+    },
+    {
+      "name": "Confluence",
+      "type": "collaboration",
+      "required": false,
+      "description": "For creating product requirement documents (PRDs) and documentation."
+    },
+    {
+      "name": "Aha!",
+      "type": "roadmapping",
+      "required": false,
+      "description": "For setting strategy, gathering feedback, and creating visual roadmaps."
+    },
+    {
+      "name": "Pendo",
+      "type": "analytics",
+      "required": false,
+      "description": "For user tracking and analysis, providing insights into how users engage with software or websites."
+    }
+  ],
+  "model": {
+    "preferred": "gemini-2.0-flash-exp",
+    "temperature": 0.7,
+    "maxTokens": 8000
+  },
+  "context": {
+    "maxHistoryTurns": 50,
+    "includeShared": true,
+    "knowledgeFiles": [
+      "knowledge/product-lifecycle-management.md",
+      "knowledge/strategic-thinking.md",
+      "knowledge/user-research.md",
+      "knowledge/data-analysis.md",
+      "knowledge/roadmapping-and-prioritization.md",
+      "knowledge/agile-methodologies.md",
+      "knowledge/feature-breakdown-research.md"
+    ]
+  },
+  "tags": ["product-management", "agile", "planning"],
+  "languages": ["English"],
+  "integrations": {
+    "fabric": true,
+    "mcp": true
+  }
+}

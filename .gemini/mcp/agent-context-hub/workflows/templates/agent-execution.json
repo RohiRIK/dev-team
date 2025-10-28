@@ -1,0 +1,93 @@
+{
+  "name": "Agent Execution with Initialization",
+  "description": "Complete workflow: Initialize agent context → Create task → Execute → Update status",
+  "version": "1.0.0",
+  "metadata": {
+    "author": "dev-team",
+    "category": "execution",
+    "tags": ["agent", "execution", "initialization", "core"]
+  },
+  "steps": [
+    {
+      "id": "init",
+      "name": "Initialize Agent Context",
+      "description": "Load agent configuration, prompts, and knowledge files",
+      "tool": "initialize_agent",
+      "server": "agent-context-hub",
+      "params": {
+        "sessionId": "${sessionId}",
+        "agentName": "${agentName}",
+        "clearPreviousContext": true
+      },
+      "required": true,
+      "retryable": true,
+      "timeout": 5000
+    },
+    {
+      "id": "create_task",
+      "name": "Create Task Record",
+      "description": "Register the task in the coordination system for tracking",
+      "tool": "create_agent_task",
+      "server": "agent-context-hub",
+      "params": {
+        "sessionId": "${sessionId}",
+        "agentName": "${agentName}",
+        "task": "${task}",
+        "input": "${input}"
+      },
+      "dependsOn": ["init"],
+      "required": true
+    },
+    {
+      "id": "execute",
+      "name": "Execute Agent Task",
+      "description": "Run the actual agent with the loaded context",
+      "tool": "execute_agent",
+      "server": "agent-execution-hub",
+      "params": {
+        "agentName": "${agentName}",
+        "agentContext": "${steps.init.result.agentContext}",
+        "input": "${task}",
+        "sessionId": "${sessionId}"
+      },
+      "dependsOn": ["init", "create_task"],
+      "required": true,
+      "timeout": 300000
+    },
+    {
+      "id": "update_status",
+      "name": "Update Task Status",
+      "description": "Mark task as completed and store results",
+      "tool": "update_task_status",
+      "server": "agent-context-hub",
+      "params": {
+        "sessionId": "${sessionId}",
+        "taskId": "${steps.create_task.result.taskId}",
+        "status": "completed",
+        "output": "${steps.execute.result}",
+        "progress": 100
+      },
+      "dependsOn": ["execute"],
+      "required": true
+    },
+    {
+      "id": "store_result",
+      "name": "Store Result in Shared Context",
+      "description": "Save execution result to shared context for other agents",
+      "tool": "store_context",
+      "server": "agent-context-hub",
+      "params": {
+        "sessionId": "${sessionId}",
+        "key": "agent_${agentName}_result",
+        "value": "${steps.execute.result}"
+      },
+      "dependsOn": ["execute"],
+      "required": false
+    }
+  ],
+  "errorHandling": {
+    "onInitFailure": "abort",
+    "onExecutionFailure": "mark_failed_and_continue",
+    "onStatusUpdateFailure": "log_warning"
+  }
+}

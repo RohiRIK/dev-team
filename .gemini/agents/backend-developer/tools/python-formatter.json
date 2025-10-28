@@ -1,0 +1,5 @@
+{
+  "name": "Python Formatter",
+  "description": "Formats Python code according to PEP 8.",
+  "command": "black"
+}

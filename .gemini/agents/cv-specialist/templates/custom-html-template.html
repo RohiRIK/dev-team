@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>$title$</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+  </style>
+  $for(css)$
+    <link rel="stylesheet" href="$css$" />
+  $endfor$
+  <!-- Custom CSS will be linked here -->
+</head>
+<body>
+$for(include-before)$ 
+$include-before$
+$endfor$
+
+<div class="header-content">
+  $if(photo)$
+    <img src="$photo$" alt="Profile Picture" />
+  $endif$
+  <div class="contact-info">
+    $if(firstname)$<h1>$firstname$ $if(lastname)$$lastname$$endif$</h1>$endif$
+    $if(email)$<a href="mailto:$email$">$email$</a>$endif$
+    $if(mobile)$<span> | $mobile$</span>$endif$
+    $if(homepage)$<span> | <a href="$homepage$">$homepage$</a></span>$endif$
+    $if(address.city)$<span> | $address.city$</span>$endif$
+    $if(address.country)$<span>, $address.country$</span>$endif$
+  </div>
+</div>
+
+$body$
+
+$for(include-after)$
+$include-after$
+$endfor$
+</body>
+</html>

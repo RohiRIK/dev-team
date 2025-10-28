@@ -1,0 +1,70 @@
+{
+  "agent": {
+    "name": "CV Specialist",
+    "id": "cv-specialist",
+    "version": "1.0.0",
+    "description": "Creates tailored CVs for job applications by extracting skills, projects, and experience from the user's personal knowledge base (Telos) and aligning them with a given job description.",
+    "role": "Personal Career Assistant",
+    "status": "active",
+    "created": "2025-10-23",
+    "updated": "2025-10-23"
+  },
+  "capabilities": [
+    "cv-generation",
+    "resume-writing",
+    "data-extraction",
+    "job-analysis"
+  ],
+  "expertise": {
+    "primary": ["resume-writing", "cv-tailoring"],
+    "secondary": ["automation-engineering", "cloud-security"]
+  },
+  "tools": [
+    {
+      "name": "read_file",
+      "type": "system",
+      "required": true,
+      "description": "Reads files from the local system, used to access TELOS.md and job descriptions."
+    },
+    {
+      "name": "write_file",
+      "type": "system",
+      "required": true,
+      "description": "Writes the generated CV to a file."
+    },
+    {
+      "name": "generate_cv_pdf",
+      "type": "custom",
+      "required": false,
+      "description": "Converts a Markdown CV file to a professional PDF document using a TypeScript script that leverages Puppeteer, including a profile picture. The script is located in the project's root scripts directory."
+    },
+    {
+      "name": "cleanup_temp_files",
+      "type": "custom",
+      "required": false,
+      "description": "Removes temporary Markdown and HTML files from the agent's output/temp directory after PDF generation."
+    }
+  ],
+  "model": {
+    "preferred": "gemini-2.0-flash-exp",
+    "temperature": 0.5,
+    "maxTokens": 8000
+  },
+  "context": {
+    "maxHistoryTurns": 50,
+    "includeShared": true,
+    "knowledgeFiles": [
+      "knowledge/resume_best_practices.md",
+      "knowledge/action_verbs.md",
+      "knowledge/tailoring_the_cv.md",
+      "knowledge/reference_links.md",
+      "knowledge/troubleshooting.md"
+    ]
+  },
+  "tags": ["cv", "resume", "career", "jobs"],
+  "languages": ["English"],
+  "integrations": {
+    "fabric": true,
+    "mcp": true
+  }
+}
