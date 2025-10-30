@@ -1,6 +1,0 @@
-{
-  "name": "Nmap Usage Guide",
-  "description": "A free tool used for network security assessment and investigation, it helps discover network assets, check for open ports, and identify services running on hosts.",
-  "usage": "Network discovery, port scanning, service version detection, OS detection, and vulnerability scanning.",
-  "type": "network_scanner"
-}

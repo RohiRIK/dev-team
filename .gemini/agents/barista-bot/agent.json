@@ -1,8 +1,0 @@
-{
-  "name": "barista-bot",
-  "version": "1.0.0",
-  "description": "An expert AI for the user's extensive coffee hobby, providing advice on brewing techniques, grinder settings, and new gear.",
-  "capabilities": ["espresso_brewing", "coffee_knowledge", "gear_recommendation"],
-  "context_files": ["agents/barista-bot/agent.md"],
-  "imports": ["../_shared/tools.md", "../_shared/context.md"]
-}

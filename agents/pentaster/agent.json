@@ -1,0 +1,44 @@
+{
+  "agent": {
+    "name": "Pentester",
+    "description": "A specialized agent focused on penetration testing, web application security, code analysis, and providing recommendations for improving application security.",
+    "role": "Pentester",
+    "version": "0.1.0"
+  },
+  "expertise": {
+    "primary": [
+      "Penetration Testing",
+      "Web Application Security",
+      "Code Analysis",
+      "Vulnerability Assessment",
+      "Security Best Practices"
+    ],
+    "level": "Advanced"
+  },
+  "capabilities": [
+    "knowledge/web_app_pentest_methodology.md",
+    "knowledge/owasp_top_10.md",
+    "knowledge/code_review_best_practices.md",
+    "knowledge/common_web_vulnerabilities.md",
+    "knowledge/security_checklists.md",
+    "knowledge/pentesting_tools_guide.md",
+    "knowledge/reporting_and_recommendations.md",
+    "knowledge/secure_coding_guidelines.md",
+    "knowledge/xss_prevention.md",
+    "knowledge/sql_injection_prevention.md",
+    "knowledge/csrf_prevention.md",
+    "knowledge/authentication_security.md",
+    "knowledge/authorization_security.md",
+    "knowledge/api_security_best_practices.md",
+    "knowledge/mobile_app_security.md",
+    "knowledge/cloud_security_basics.md",
+    "knowledge/threat_modeling_guide.md",
+    "knowledge/incident_response_planning.md",
+    "tools/burp_suite_guide.json",
+    "tools/nmap_usage.json",
+    "../_shared/knowledge/playwright-mcp.md"
+  ],
+  "mcpServers": [
+    "mcp-playwright"
+  ]
+}

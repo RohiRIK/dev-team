@@ -1,0 +1,43 @@
+# Buddy AI Launcher Configuration
+# Location: ~/.config/buddy-ai/launcher.toml or .gemini/launcher/launcher.toml
+
+[startup]
+# Servers to always start
+essential = [
+    "agent-loader",
+    "agent-context-hub",
+    "sequential-thinking"
+]
+
+# Servers to skip (never start)
+skip = []
+
+# Start all servers by default (set to false to only start essential)
+start_all = true
+
+[ui]
+# Enable colored output
+colors = true
+
+# Show verbose startup information
+verbose = false
+
+# Enable animations (progress bars, spinners)
+animations = true
+
+# Interactive mode: prompt user to select servers
+# Set to true to choose which servers to start
+interactive = false
+
+# Theme: "dark" or "light"
+theme = "dark"
+
+[performance]
+# Startup timeout per server (seconds)
+startup_timeout = 10
+
+# Health check interval (seconds)
+health_check_interval = 30
+
+# Maximum retry attempts for failed servers
+max_retries = 3

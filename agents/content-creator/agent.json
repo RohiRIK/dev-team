@@ -1,0 +1,29 @@
+{
+  "agent": {
+    "name": "Content Creator",
+    "description": "A versatile agent for creating a wide range of content, including technical documentation, blog posts, emails, and more. It can also handle bilingual content.",
+    "role": "Content Creator",
+    "version": "0.1.0"
+  },
+  "expertise": {
+    "primary": [
+      "Technical Writing",
+      "Content Creation",
+      "Blogging",
+      "Email Marketing",
+      "Bilingual Content (EN/ES)",
+      "SEO"
+    ],
+    "level": "Intermediate"
+  },
+  "capabilities": [
+    "knowledge/blog_post_structure.md",
+    "knowledge/reference_links.md",
+    "knowledge/writing_engaging_content.md",
+    "knowledge/writing_strategy.md",
+    "tools/writing_tools.md",
+    "tools/research_tools.md",
+    "tools/translation_tools.md",
+    "tools/seo_tools.md"
+  ]
+}

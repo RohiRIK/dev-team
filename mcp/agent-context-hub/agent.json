@@ -1,0 +1,36 @@
+{
+  "name": "agent-context-hub",
+  "description": "Shared context hub MCP server for coordinating multiple AI agents with dependency management",
+  "version": "1.0.0",
+  "capabilities": [
+    "task_coordination",
+    "sequential_execution",
+    "parallel_execution",
+    "context_sharing",
+    "agent_discovery",
+    "event_notifications"
+  ],
+  "primitives": {
+    "tools": [
+      "create_agent_task",
+      "update_task_status",
+      "get_task_status",
+      "get_ready_tasks",
+      "store_context",
+      "get_context",
+      "subscribe_to_topics",
+      "publish_event"
+    ],
+    "resources": [
+      "agent://registry",
+      "agent://{name}",
+      "agent://{name}/knowledge/{file}",
+      "context://session/{id}",
+      "queue://tasks/{id}"
+    ],
+    "prompts": [
+      "orchestrator_system",
+      "agent_execution"
+    ]
+  }
+}

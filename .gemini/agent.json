@@ -95,7 +95,7 @@
     "maxHistoryTurns": 100,
     "includeShared": true,
     "knowledgeFiles": [
-      "GEMINI.md",
+      "agent.md",
       "agents/_shared/knowledge/system-architecture.md",
       "agents/_shared/knowledge/agent-management.md",
       "agents/_shared/knowledge/shared-context-hub.md",
@@ -103,7 +103,7 @@
       "agents/_shared/knowledge/mcp-servers.md",
       "agents/_shared/knowledge/tool-usage.md",
       "agents/_shared/knowledge/quick-reference.md",
-      "mcp/agent-context-hub/GEMINI.md"
+      "mcp/agent-context-hub/agent.md"
     ]
   },
   "tags": [

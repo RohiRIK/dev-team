@@ -17,18 +17,18 @@
       "description": "Dynamically loads agent contexts on-demand to save context window tokens",
       "command": "bun",
       "args": [
-        ".gemini/mcp/agent-loader/src/index.ts"
+        "mcp/agent-loader/src/index.ts"
       ],
       "cwd": ".",
       "env": {
-        "AGENTS_DIR": ".gemini/agents"
+        "AGENTS_DIR": "agents"
       }
     },
     "fabric": {
       "description": "Access to AI patterns for content processing (extract_wisdom, summarize, etc.)",
       "command": "bun",
       "args": [
-        ".gemini/mcp/fabric-integration/src/index.ts"
+        "mcp/fabric-integration/src/index.ts"
       ],
       "env": {
         "FABRIC_HOME": "$HOME/.config/fabric",
@@ -39,27 +39,27 @@
       "description": "Search and access n8n workflows and documentation on-demand",
       "command": "bun",
       "args": [
-        ".gemini/mcp/workflow-loader/src/index.ts"
+        "mcp/workflow-loader/src/index.ts"
       ],
       "cwd": "."
     },
     "agent-context-hub": {
       "description": "Multi-agent coordination hub with sequential and parallel task execution",
       "command": "bun",
-      "args": [".gemini/mcp/agent-context-hub/src/index.ts"],
+      "args": ["mcp/agent-context-hub/src/index.ts"],
       "cwd": ".",
       "env": {
-        "AGENTS_PATH": ".gemini/agents",
-        "LOG_LEVEL": "info"
+        "AGENTS_PATH": "agents",
+        "LOG_LEVEL": "silent"
       }
     },
     "agent-execution-hub": {
       "description": "Agent execution engine that prepares agents for execution via agent-loader",
       "command": "bun",
-      "args": [".gemini/mcp/agent-execution-hub/src/index.ts"],
+      "args": ["mcp/agent-execution-hub/src/index.ts"],
       "cwd": ".",
       "env": {
-        "AGENTS_DIR": ".gemini/agents"
+        "AGENTS_DIR": "agents"
       }
     },
     "context7": {
@@ -121,13 +121,12 @@
   },
   "context": {
     "fileName": [
-      "GEMINI.md",
-      ".gemini/mcp/agent-context-hub/GEMINI.md"
+      "agent.md",
+      "mcp/agent-context-hub/agent.md"
     ],
     "includeDirectories": [
-      ".gemini",
-      ".gemini/agents/_shared/knowledge",
-      ".gemini/mcp/agent-context-hub"
+      "agents/_shared/knowledge",
+      "mcp/agent-context-hub"
     ],
     "loadFromIncludeDirectories": true,
     "discoveryMaxDirs": 0,

@@ -1,0 +1,43 @@
+{
+  "agent": {
+    "name": "Data Analyst",
+    "description": "An agent specializing in data analysis.",
+    "role": "Data Analyst",
+    "version": "1.1.0"
+  },
+  "expertise": {
+    "primary": [
+      "Data Cleaning",
+      "Data Visualization",
+      "Statistical Analysis",
+      "Python for Data Analysis",
+      "SQL for Data Analysis",
+      "Excel for Data Analysis",
+      "Power BI for Data Analysis",
+      "Tableau for Data Analysis",
+      "Reporting"
+    ],
+    "level": "Advanced"
+  },
+  "capabilities": [
+    "knowledge/data_analysis_process.md",
+    "knowledge/data_cleaning.md",
+    "knowledge/data_visualization.md",
+    "knowledge/statistical_analysis.md",
+    "knowledge/python_for_data_analysis.md",
+    "knowledge/best_practices_for_data_analysis.md",
+    "knowledge/data_analysis_cheat_sheet.md",
+    "knowledge/exploratory_data_analysis.md",
+    "knowledge/feature_engineering.md",
+    "knowledge/time_series_analysis.md",
+    "knowledge/ab_testing.md",
+    "knowledge/sql_for_data_analysis.md",
+    "knowledge/excel_for_data_analysis.md",
+    "knowledge/power_bi_for_data_analysis.md",
+    "knowledge/tableau_for_data_analysis.md",
+    "tools/data_analysis_tools.md",
+    "tools/data_visualization_tools.md",
+    "tools/statistical_analysis_tools.md",
+    "tools/reporting_tools.md"
+  ]
+}

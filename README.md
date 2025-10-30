@@ -53,13 +53,13 @@ The system's architecture is centered around Buddy, the orchestrator, which mana
 2. **Install MCP server dependencies:**
    ```bash
    # Agent Context Hub
-   cd .gemini/mcp/agent-context-hub
+   cd mcp/agent-context-hub
    bun install
-   
+
    # Agent Execution Hub
    cd ../agent-execution-hub
    bun install
-   
+
    # Agent Loader
    cd ../agent-loader
    bun install
@@ -124,7 +124,7 @@ default_api.execute_agent(agentName="github-manager", task="Say hello")
 
 ## MCP Servers & Agents
 
-This system leverages several Model Context Protocol (MCP) servers for agent coordination and execution, and includes 26 specialized agents. For detailed information on each MCP server and agent, please refer to their respective directories within `.gemini/mcp/` and `.gemini/agents/`.
+This system leverages several Model Context Protocol (MCP) servers for agent coordination and execution, and includes 26 specialized agents. For detailed information on each MCP server and agent, please refer to their respective directories within `mcp/` and `agents/` at the project root.
 
 ## Contributing
 

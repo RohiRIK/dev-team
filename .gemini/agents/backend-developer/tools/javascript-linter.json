@@ -1,5 +1,0 @@
-{
-  "name": "JavaScript Linter",
-  "description": "Lints JavaScript code for style and errors.",
-  "command": "eslint"
-}

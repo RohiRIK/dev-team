@@ -1,8 +1,0 @@
-{
-  "name": "homelab-manager",
-  "version": "1.0.0",
-  "description": "Manages the home lab Docker Swarm environment, including deploying services, optimizing configurations, and handling backups.",
-  "capabilities": ["docker_swarm", "service_deployment", "backup_management", "traefik_configuration"],
-  "context_files": ["agents/homelab-manager/agent.md"],
-  "imports": ["../_shared/tools.md", "../_shared/context.md"]
-}
