@@ -1,0 +1,44 @@
+{
+  "id": "security-policy-validation",
+  "name": "Security Policy Validation",
+  "description": "Validate security policies using compliance agent",
+  "trigger": "intune/security/",
+  "executionMode": "sequential",
+  "actions": [
+    {
+      "id": "load_security_policies",
+      "type": "load_context",
+      "params": {
+        "path": "docs/security_policies/"
+      }
+    },
+    {
+      "id": "invoke_compliance_agent",
+      "type": "invoke_agent",
+      "params": {
+        "agentName": "compliance-agent",
+        "task": "Review and validate security policies",
+        "context": "{{security_policies}}"
+      },
+      "dependencies": ["load_security_policies"]
+    },
+    {
+      "id": "log_review",
+      "type": "log_event",
+      "params": {
+        "event": "policy_review",
+        "data": "{{compliance_result}}"
+      },
+      "dependencies": ["invoke_compliance_agent"]
+    },
+    {
+      "id": "export_summary",
+      "type": "export_results",
+      "params": {
+        "path": "reports/compliance_summary.xlsx",
+        "format": "excel"
+      },
+      "dependencies": ["log_review"]
+    }
+  ]
+}

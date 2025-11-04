@@ -1,0 +1,60 @@
+{
+  "id": "frontend-template-generation",
+  "name": "Frontend Template Generation",
+  "description": "Generate frontend templates using UX/UI and Frontend agents",
+  "trigger": "@frontend/",
+  "executionMode": "sequential",
+  "actions": [
+    {
+      "id": "load_frontend_context",
+      "type": "load_context",
+      "params": {
+        "path": "frontend/context.json"
+      }
+    },
+    {
+      "id": "invoke_ux_ui_agent",
+      "type": "invoke_agent",
+      "params": {
+        "agentName": "ux-ui-agent",
+        "task": "Design UI components for {{componentName}}",
+        "context": "{{frontend_context}}"
+      },
+      "dependencies": ["load_frontend_context"]
+    },
+    {
+      "id": "invoke_frontend_agent",
+      "type": "invoke_agent",
+      "params": {
+        "agentName": "frontend-agent",
+        "task": "Implement frontend components based on design",
+        "context": "{{ux_ui_result}}"
+      },
+      "dependencies": ["invoke_ux_ui_agent"]
+    },
+    {
+      "id": "generate_template",
+      "type": "execute_tool",
+      "params": {
+        "toolName": "template_generator",
+        "toolParams": {
+          "outputPath": "@frontend/templates/",
+          "data": "{{frontend_result}}"
+        }
+      },
+      "dependencies": ["invoke_frontend_agent"]
+    },
+    {
+      "id": "log_completion",
+      "type": "log_event",
+      "params": {
+        "event": "frontend_template_generated",
+        "data": {
+          "componentName": "{{componentName}}",
+          "timestamp": "{{timestamp}}"
+        }
+      },
+      "dependencies": ["generate_template"]
+    }
+  ]
+}

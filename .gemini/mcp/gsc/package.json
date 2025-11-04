@@ -1,0 +1,22 @@
+{
+  "name": "gsc",
+  "version": "1.0.0",
+  "description": "GEMINI Subagent Core - Core hub managing all GEMINI sub-agents",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.2",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "typescript": "^5.9.3"
+  },
+  "author": "Rohi Rikman",
+  "license": "MIT"
+}

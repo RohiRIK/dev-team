@@ -1,0 +1,101 @@
+{
+  "mcp": {
+    "id": "gsc",
+    "name": "GEMINI Subagent Core",
+    "version": "1.0.0",
+    "description": "Core hub managing all GEMINI sub-agents with unified coordination, execution, and workflow capabilities",
+    "author": "Rohi Rikman",
+    "context_model": "gsc_context_hub",
+    "capabilities": [
+      "resource_management",
+      "prompt_orchestration",
+      "sampling_control",
+      "logging_audit",
+      "elicitation_loop",
+      "tool_execution",
+      "workflow_coordination"
+    ],
+    "structure": {
+      "resources": {
+        "description": "Defines all external and internal data sources accessible to MCP.",
+        "examples": [
+          "repos/oncloud-best-practice/",
+          "config/device_profiles.json",
+          "api/intune/graph/v1.0/",
+          "docs/security_policies/"
+        ]
+      },
+      "prompts": {
+        "description": "Contains base prompt templates for agent interactions and responses.",
+        "templates": {
+          "default_instruction": "You are a GEMINI sub-agent managed by the MCP. Follow context hierarchy and maintain structured reasoning.",
+          "error_handling": "If an action fails, log it and request clarification before retrying."
+        }
+      },
+      "sampling": {
+        "description": "Controls sampling strategy for output balance.",
+        "settings": {
+          "temperature": 0.4,
+          "top_p": 0.85,
+          "max_tokens": 2048,
+          "retry_limit": 3
+        }
+      },
+      "logging": {
+        "description": "Defines centralized logging behavior for all MCP actions.",
+        "storage": "logs/mcp_runtime/",
+        "policy": {
+          "rotation": "daily",
+          "retention_days": 30,
+          "include_agent_ids": true
+        }
+      },
+      "elicitation": {
+        "description": "Specifies the structure for eliciting additional data from agents or systems.",
+        "methods": [
+          "context_refinement",
+          "clarification_prompts",
+          "multi-turn_query"
+        ]
+      },
+      "tools": {
+        "description": "Defines tools and execution utilities available to the MCP.",
+        "enabled_tools": [
+          "shell_runner",
+          "code_executor",
+          "api_connector",
+          "data_parser"
+        ]
+      },
+      "workflows": {
+        "description": "Defines task routing and sub-agent calling logic.",
+        "examples": [
+          {
+            "name": "frontend-template-generation",
+            "trigger": "@frontend/",
+            "actions": [
+              "load_context('frontend/context.json')",
+              "invoke_agent('ux-ui-agent')",
+              "invoke_agent('frontend-agent')",
+              "generate_template('@frontend/templates/')"
+            ]
+          },
+          {
+            "name": "security-policy-validation",
+            "trigger": "intune/security/",
+            "actions": [
+              "invoke_agent('compliance-agent')",
+              "log_event('policy_review')",
+              "export_results('reports/compliance_summary.xlsx')"
+            ]
+          }
+        ],
+        "execution": {
+          "enable_mini_shell": true,
+          "context_loader": "scripts/load_context.sh",
+          "knowledge_base_path": "data/knowledge_base/"
+        }
+      }
+    }
+  }
+}

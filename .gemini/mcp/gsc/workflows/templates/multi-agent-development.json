@@ -1,0 +1,50 @@
+{
+  "id": "multi-agent-development",
+  "name": "Multi-Agent Development Workflow",
+  "description": "Coordinate architect, coder, and tester agents",
+  "trigger": "manual/development",
+  "executionMode": "sequential",
+  "actions": [
+    {
+      "id": "architect_design",
+      "type": "invoke_agent",
+      "params": {
+        "agentName": "architect-agent",
+        "task": "Design system architecture for {{projectName}}",
+        "context": "{{projectRequirements}}"
+      }
+    },
+    {
+      "id": "coder_implement",
+      "type": "invoke_agent",
+      "params": {
+        "agentName": "coder-agent",
+        "task": "Implement code based on architecture",
+        "context": "{{architect_result}}"
+      },
+      "dependencies": ["architect_design"]
+    },
+    {
+      "id": "tester_validate",
+      "type": "invoke_agent",
+      "params": {
+        "agentName": "tester-agent",
+        "task": "Test and validate implementation",
+        "context": "{{coder_result}}"
+      },
+      "dependencies": ["coder_implement"]
+    },
+    {
+      "id": "log_completion",
+      "type": "log_event",
+      "params": {
+        "event": "development_complete",
+        "data": {
+          "project": "{{projectName}}",
+          "results": "{{tester_result}}"
+        }
+      },
+      "dependencies": ["tester_validate"]
+    }
+  ]
+}
