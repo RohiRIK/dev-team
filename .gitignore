@@ -81,4 +81,4 @@ token.txt
 
 # Ignored workflow files
 /agents/automation-specialist/knowledge/workflows/
-.gemini/agents/automation-specialist/knowledge/workflows
+.gemini/agents/automation-specialist/knowledge/workflows.gemini/settings.json

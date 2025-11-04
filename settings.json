@@ -13,15 +13,14 @@
     }
   },
   "mcpServers": {
-    "agent-loader": {
-      "description": "Dynamically loads agent contexts on-demand to save context window tokens",
+    "agent-context-hub": {
+      "description": "Unified agent coordinator, context manager, and task executor",
       "command": "bun",
-      "args": [
-        "mcp/agent-loader/src/index.ts"
-      ],
+      "args": ["mcp/agent-context-hub/src/index.ts"],
       "cwd": ".",
       "env": {
-        "AGENTS_DIR": "agents"
+        "AGENTS_PATH": "agents",
+        "LOG_LEVEL": "silent"
       }
     },
     "fabric": {
@@ -42,25 +41,6 @@
         "mcp/workflow-loader/src/index.ts"
       ],
       "cwd": "."
-    },
-    "agent-context-hub": {
-      "description": "Multi-agent coordination hub with sequential and parallel task execution",
-      "command": "bun",
-      "args": ["mcp/agent-context-hub/src/index.ts"],
-      "cwd": ".",
-      "env": {
-        "AGENTS_PATH": "agents",
-        "LOG_LEVEL": "silent"
-      }
-    },
-    "agent-execution-hub": {
-      "description": "Agent execution engine that prepares agents for execution via agent-loader",
-      "command": "bun",
-      "args": ["mcp/agent-execution-hub/src/index.ts"],
-      "cwd": ".",
-      "env": {
-        "AGENTS_DIR": "agents"
-      }
     },
     "context7": {
     "description": "Upstash Context7 service for enhanced context management and retrieval",
