@@ -143,15 +143,16 @@ const tools = [
   // Agent Execution
   {
     name: 'execute_agent',
-    description: 'Execute an agent with a specific task',
+    description: 'Execute an agent with a specific task. Set async=true to run in background while you continue other work.',
     inputSchema: {
       type: 'object',
       properties: {
-        agentName: { type: 'string' },
-        task: { type: 'string' },
-        context: { type: 'object' },
-        sessionId: { type: 'string' },
-        taskId: { type: 'string' }
+        agentName: { type: 'string', description: 'Name of the agent to execute' },
+        task: { type: 'string', description: 'Task description for the agent' },
+        context: { type: 'object', description: 'Additional context data for the task' },
+        sessionId: { type: 'string', description: 'Session ID for task tracking' },
+        taskId: { type: 'string', description: 'Task ID for result storage' },
+        async: { type: 'boolean', description: 'If true, runs in background and returns immediately with executionId. Use get_execution_status to check progress.' }
       },
       required: ['agentName', 'task']
     }
@@ -203,6 +204,26 @@ const tools = [
         taskDescription: { type: 'string' }
       },
       required: ['taskDescription']
+    }
+  },
+  // Agent Execution Status
+  {
+    name: 'get_execution_status',
+    description: 'Get the status of a background agent execution',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        executionId: { type: 'string', description: 'Execution ID returned from async execute_agent call' }
+      },
+      required: ['executionId']
+    }
+  },
+  {
+    name: 'list_active_executions',
+    description: 'List all currently running agent executions',
+    inputSchema: {
+      type: 'object',
+      properties: {}
     }
   }
 ];
@@ -293,6 +314,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           name: w.name,
           description: w.description
         }));
+        break;
+
+      // Agent Execution Status
+      case 'get_execution_status':
+        result = agentExecutor.getExecutionStatus(args.executionId as string);
+        if (!result) {
+          throw new Error(`Execution ${args.executionId} not found`);
+        }
+        break;
+
+      case 'list_active_executions':
+        result = agentExecutor.getActiveExecutions();
         break;
 
       // Task Analysis

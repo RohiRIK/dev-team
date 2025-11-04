@@ -40,9 +40,67 @@ export class AgentExecutor {
   }
 
   /**
-   * Execute an agent with the given task
+   * Execute agent in background (fire and forget)
    */
-  async execute(request: ExecutionRequest): Promise<ExecutionResult> {
+  private async executeInBackground(execution: ExecutionResult, request: ExecutionRequest): Promise<void> {
+    try {
+      // Load agent configuration
+      const agent = await this.agentRegistry.getAgent(request.agentName);
+      if (!agent) {
+        throw new Error(`Agent ${request.agentName} not found`);
+      }
+
+      // Get sampling configuration
+      const samplingConfig = request.samplingStrategy
+        ? samplingController.getConfigForAgentType(request.agentName)
+        : samplingController.getConfig();
+
+      // Prepare execution context
+      const executionContext = {
+        agent,
+        task: request.task,
+        context: request.context || {},
+        samplingConfig,
+        sessionId: request.sessionId,
+        taskId: request.taskId
+      };
+
+      // Execute agent
+      const result = await this.executeAgentTask(executionContext);
+
+      // Update execution result
+      execution.status = 'completed';
+      execution.endTime = Date.now();
+      execution.result = result;
+
+      globalLogger.info('Background agent execution completed', {
+        executionId: execution.executionId,
+        agentName: request.agentName,
+        duration: execution.endTime - execution.startTime
+      });
+
+      // Store result in context if session is provided
+      if (request.sessionId && request.taskId) {
+        contextStore.storeData(request.sessionId, `task_${request.taskId}_result`, result);
+      }
+    } catch (error) {
+      execution.status = 'failed';
+      execution.endTime = Date.now();
+      execution.error = error instanceof Error ? error.message : String(error);
+
+      globalLogger.error('Background agent execution failed', {
+        executionId: execution.executionId,
+        agentName: request.agentName,
+        error: execution.error
+      });
+    }
+  }
+
+  /**
+   * Execute an agent with the given task
+   * @param request.async - If true, returns immediately with executionId. Use getExecutionStatus() to check progress.
+   */
+  async execute(request: ExecutionRequest & { async?: boolean }): Promise<ExecutionResult> {
     const executionId = `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const startTime = Date.now();
 
@@ -59,6 +117,17 @@ export class AgentExecutor {
     };
 
     this.activeExecutions.set(executionId, execution);
+
+    // If async mode, start execution in background and return immediately
+    if (request.async) {
+      this.executeInBackground(execution, request);
+      globalLogger.info('Agent execution started in background', {
+        executionId,
+        agentName: request.agentName,
+        task: request.task
+      });
+      return execution; // Return immediately with status 'running'
+    }
 
     globalLogger.info('Agent execution started', {
       executionId,

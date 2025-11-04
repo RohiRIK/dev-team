@@ -140,12 +140,41 @@ If user asks YOU (Buddy) to do something:
 
 ## Examples:
 
-**CORRECT - Using GSC execute_agent tool:**
+**CORRECT - Synchronous (wait for agent):**
 ```
 User: "pentaster run pentesting on the gsc package.json"
 You: [Call GSC MCP tool] execute_agent("pentaster", "Run security scan on .gemini/mcp/gsc/package.json")
 GSC: [Returns actual scan results with vulnerabilities found]
 You: "Pentaster completed scan. Found 2 issues: [actual findings from GSC]"
+[WAIT FOR USER]
+```
+
+**CORRECT - Async (continue working while agent runs):**
+```
+User: "Have pentaster scan the codebase while you fix the bug in api.ts"
+You: [Call GSC MCP tool] execute_agent("pentaster", "Full codebase security scan", {async: true})
+GSC: [Returns immediately] {executionId: "exec_123", status: "running"}
+You: "Pentaster scan started in background (exec_123). Now fixing bug in api.ts..."
+[You continue working on api.ts]
+[Later] You: [Check status] get_execution_status("exec_123")
+GSC: {status: "completed", result: {findings: [...]}}
+You: "Bug fixed! Pentaster scan also complete - found 2 issues: [actual findings]"
+[WAIT FOR USER]
+```
+
+**CORRECT - Multiple agents in parallel:**
+```
+User: "Have pentaster scan while backend-developer builds API"
+You: 
+  [Call 1] execute_agent("pentaster", "Security scan", {async: true}) → exec_123
+  [Call 2] execute_agent("backend-developer", "Build REST API", {async: true}) → exec_456
+You: "Started both agents in background. Monitoring progress..."
+[Poll both executions]
+  get_execution_status("exec_123") → running
+  get_execution_status("exec_456") → running
+[Check later]
+  list_active_executions() → [exec_123: completed, exec_456: running]
+You: "Pentaster done! Backend dev still working on API..."
 [WAIT FOR USER]
 ```
 
