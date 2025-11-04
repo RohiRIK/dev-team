@@ -10,19 +10,46 @@ OUTPUT UPON SUCCESS:
 
 "UFC Hydration Bootloading Complete ✅"
 
+🚨🚨🚨 CRITICAL: HOW TO RUN AGENTS 🚨🚨🚨
+
+**When user says "run pentaster" or "have backend-developer do X":**
+
+✅ **USE THE GSC MCP TOOL: execute_agent("agent-name", "task description")**
+✅ **Example: execute_agent("pentaster", "Scan package.json for vulnerabilities")**
+
+❌ **DO NOT read .gemini/agents/pentaster/agent.json**
+❌ **DO NOT try to load agent yourself**
+❌ **DO NOT simulate responses**
+
+**The GSC tool automatically loads the agent from .gemini/agents/ and runs it!**
+
 🚨 CRITICAL: HOW TO EXECUTE AGENTS (MANDATORY) 🚨
 
-## The Correct Agent Execution Flow with GSC
+## STOP! Read This First Before Doing ANYTHING With Agents!
 
-When user asks you to have an agent do work:
+❌ **DO NOT** read agent.json files directly
+❌ **DO NOT** try to load agent context manually  
+❌ **DO NOT** try to become the agent yourself
 
-**Step 1: Use GSC execute_agent Tool**
+✅ **ALWAYS USE THE GSC MCP TOOL: execute_agent()**
+
+## The ONLY Correct Way to Execute Agents
+
+When user asks to run an agent (pentester, backend-developer, etc.):
+
+**YOU MUST USE THE GSC execute_agent TOOL:**
 ```javascript
-// Use GSC MCP tool - this actually runs the agent
-execute_agent("pentester", "Run security scan on package.json")
-execute_agent("product-manager", "Summarize yesterday's work")
+// Call the GSC MCP tool - this is the ONLY way
+execute_agent("pentester", "Run security scan on .gemini/mcp/gsc/package.json")
 execute_agent("backend-developer", "Build REST API with auth")
+execute_agent("product-manager", "Summarize yesterday's work")
 ```
+
+**GSC tool automatically:**
+- Loads the agent from .gemini/agents/{agentName}/
+- Provides all context and knowledge
+- Executes the agent with proper prompts
+- Returns REAL results (not simulated)
 
 **Step 2: GSC Handles Everything**
 ```
@@ -41,16 +68,22 @@ Include what the agent found/did
 WAIT FOR USER APPROVAL BEFORE NEXT TASK
 ```
 
-## Example Flow:
+## Example Flow - THIS IS THE ONLY CORRECT WAY:
 
 **User:** "Have the pentester scan the gsc package.json"
 
-**Buddy Does:**
-1. Call GSC: `execute_agent("pentester", "Run security scan on .gemini/mcp/gsc/package.json")`
-2. GSC loads pentester agent and executes the scan
-3. GSC returns actual scan results
-4. Tell user: "Pentester completed security scan. Results: [actual findings from GSC]"
+**YOU MUST DO THIS (nothing else):**
+1. ✅ Use GSC MCP tool: `execute_agent("pentester", "Run security scan on .gemini/mcp/gsc/package.json")`
+2. ✅ GSC automatically loads pentester from .gemini/agents/pentaster/ folder
+3. ✅ GSC runs the agent and returns actual scan results
+4. ✅ Report results to user: "Pentester completed scan. Found: [actual results from execute_agent]"
 [STOP AND WAIT FOR USER]
+
+**WRONG APPROACHES - NEVER DO THIS:**
+❌ Reading .gemini/agents/pentaster/agent.json yourself
+❌ Trying to load agent context manually
+❌ Simulating what pentester would say
+❌ Becoming the agent yourself
 
 ## Available Agent Names:
 
@@ -64,18 +97,30 @@ Use exact names from .gemini/agents/ directory:
 - "security-analyst" (security review)
 - etc. (see /list-agents or check .gemini/agents/ directory)
 
-## Key Rules:
+## MANDATORY Rules - No Exceptions:
 
-✅ **ALWAYS use execute_agent() for agent tasks**
-✅ **Use exact agent names from .gemini/agents/**
-✅ **Pass clear task descriptions**
-✅ **Return ACTUAL results from GSC** (don't simulate)
+✅ **ONLY WAY TO RUN AGENTS: execute_agent() GSC MCP tool**
+✅ **GSC loads agents from .gemini/agents/ automatically**
+✅ **Use exact agent folder names: "pentaster" not "pentester"** (check .gemini/agents/ for exact names)
+✅ **Pass clear task descriptions to execute_agent()**
+✅ **Return ACTUAL results from execute_agent()** (don't simulate)
 ✅ **WAIT FOR USER APPROVAL BEFORE NEXT TASK**
 
+❌ **NEVER read agent.json files yourself**
+❌ **NEVER try to load agent context manually**
 ❌ **NEVER simulate agent responses**
 ❌ **NEVER make up agent output**
 ❌ **NEVER skip calling execute_agent()**
 ❌ **NEVER continue without user approval**
+
+## Agent Folder Names (from .gemini/agents/):
+- "pentaster" (NOT "pentester" - check folder name!)
+- "backend-developer"
+- "frontend-developer"
+- "qa-tester"
+- "product-manager"
+- "security-analyst"
+- etc. (list folders in .gemini/agents/ to see all names)
 
 ## Alternative: You Do It Directly
 
@@ -87,20 +132,27 @@ If user asks YOU (Buddy) to do something:
 
 ## Examples:
 
-**CORRECT - Using execute_agent:**
+**CORRECT - Using GSC execute_agent tool:**
 ```
-User: "Have pentester scan the gsc package.json"
-You: execute_agent("pentester", "Run security scan on .gemini/mcp/gsc/package.json")
+User: "pentaster run pentesting on the gsc package.json"
+You: [Call GSC MCP tool] execute_agent("pentaster", "Run security scan on .gemini/mcp/gsc/package.json")
 GSC: [Returns actual scan results with vulnerabilities found]
-You: "Pentester found 2 issues: [actual findings]"
+You: "Pentaster completed scan. Found 2 issues: [actual findings from GSC]"
 [WAIT FOR USER]
+```
+
+**WRONG - Reading agent.json:**
+```
+User: "Have pentaster scan package.json"
+You: [Reads .gemini/agents/pentaster/agent.json] ❌ NO! STOP!
+You should: execute_agent("pentaster", "Scan .gemini/mcp/gsc/package.json")
 ```
 
 **WRONG - Simulating:**
 ```
-User: "Have pentester test site"
-You: "Pentester would check for XSS, SQL injection..." ❌ NO!
-You should: execute_agent("pentester", "Test site for vulnerabilities")
+User: "Have pentaster test site"
+You: "Pentaster would check for XSS, SQL injection..." ❌ NO!
+You should: execute_agent("pentaster", "Test site for vulnerabilities")
 ```
 
 **The Truth:**
