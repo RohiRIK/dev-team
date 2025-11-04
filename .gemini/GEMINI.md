@@ -319,6 +319,16 @@ await store_shared_context({
 
 *Full GSC documentation: `.gemini/mcp/gsc/README.md`*
 
+### Workflow Loader MCP
+```
+search_workflows(query)              # Search n8n workflows
+get_workflow(workflowId)             # Get workflow details
+list_workflows()                     # List all workflows
+get_workflow_documentation(query)    # Search workflow docs
+```
+
+**Usage**: Access n8n automation workflows and documentation on-demand. Integrates with external automation platform.
+
 ### Fabric Integration MCP
 ```
 list_fabric_patterns()                # List available patterns
