@@ -13,15 +13,18 @@
     }
   },
   "mcpServers": {
-    "agent-loader": {
-      "description": "Dynamically loads agent contexts on-demand to save context window tokens",
+    "gsc": {
+      "description": "GEMINI Subagent Core - Unified framework for agent orchestration, workflows, and execution",
       "command": "bun",
       "args": [
-        ".gemini/mcp/agent-loader/src/index.ts"
+        "run",
+        ".gemini/mcp/gsc/src/index.ts"
       ],
       "cwd": ".",
       "env": {
-        "AGENTS_DIR": ".gemini/agents"
+        "AGENTS_DIR": ".gemini/agents",
+        "WORKFLOWS_DIR": ".gemini/mcp/gsc/workflows",
+        "LOG_LEVEL": "info"
       }
     },
     "fabric": {
@@ -42,25 +45,6 @@
         ".gemini/mcp/workflow-loader/src/index.ts"
       ],
       "cwd": "."
-    },
-    "agent-context-hub": {
-      "description": "Multi-agent coordination hub with sequential and parallel task execution",
-      "command": "bun",
-      "args": [".gemini/mcp/agent-context-hub/src/index.ts"],
-      "cwd": ".",
-      "env": {
-        "AGENTS_PATH": ".gemini/agents",
-        "LOG_LEVEL": "info"
-      }
-    },
-    "agent-execution-hub": {
-      "description": "Agent execution engine that prepares agents for execution via agent-loader",
-      "command": "bun",
-      "args": [".gemini/mcp/agent-execution-hub/src/index.ts"],
-      "cwd": ".",
-      "env": {
-        "AGENTS_DIR": ".gemini/agents"
-      }
     },
     "context7": {
     "description": "Upstash Context7 service for enhanced context management and retrieval",
@@ -122,12 +106,13 @@
   "context": {
     "fileName": [
       "GEMINI.md",
-      ".gemini/mcp/agent-context-hub/GEMINI.md"
+      ".gemini/mcp/gsc/README.md"
     ],
     "includeDirectories": [
+      ".",
       ".gemini",
       ".gemini/agents/_shared/knowledge",
-      ".gemini/mcp/agent-context-hub"
+      ".gemini/mcp/gsc"
     ],
     "loadFromIncludeDirectories": true,
     "discoveryMaxDirs": 0,
@@ -143,9 +128,9 @@
     "autoAccept": true,
     "exclude": [],
     "mcpAutoApprove": [
-      "agent-context-hub",
-      "agent-loader",
+      "gsc",
       "fabric",
+      "workflow-loader",
       "context7",
       "deepwiki",
       "microsoft.docs.mcp",

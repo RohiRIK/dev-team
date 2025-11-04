@@ -249,80 +249,75 @@ Use `/list-agents` for full list or `load_agent_context(agent_name)` for details
 
 ## MCP Server Tools
 
-### Agent Context Hub MCP (Multi-Agent Coordination)
+### GEMINI Subagent Core (GSC) - Unified Agent Framework
 ```
-# Task Management
-create_agent_task(sessionId, agentName, task, input, dependencies)
-update_task_status(sessionId, taskId, status, output, progress)
-get_task_status(sessionId, taskId)
-get_ready_tasks(sessionId)
+# Agent Management & Execution
+get_agent_list()                              # List all available agents
+get_agent_details(agentName)                  # Get agent configuration
+execute_agent_task(agentName, task, options)  # Execute agent with full capabilities
 
-# Shared Context (Blackboard Pattern)
-store_context(sessionId, key, value)
-get_context(sessionId, key)
+# Workflow Orchestration
+execute_workflow(workflowId, variables)       # Run workflow with dependency management
+get_workflow_status(workflowId)               # Check workflow execution status
+list_workflows()                              # List available workflow templates
 
-# Event-Driven Coordination
-subscribe_to_topics(sessionId, agentId, topics)
-publish_event(sessionId, topic, data)
+# Context Management (Blackboard Pattern)
+store_shared_context(sessionId, key, value)   # Store data for agents to share
+get_shared_context(sessionId, key)            # Retrieve shared context
+get_session_context(sessionId)                # Get entire session state
 
-# Agent Initialization & Workflows
-initialize_agent(sessionId, agentName)
-execute_workflow(workflowTemplate, variables)
-```
+# Shell & API Execution
+execute_shell_command(command, options)       # Run shell commands
+call_external_api(url, method, data)          # Make HTTP/API calls
 
-### Agent Execution Hub MCP (Real Agent Execution)
-```
-execute_agent(agentName, task, options?)      # Execute agent for real - NEVER simulate!
-get_agent_config(agentName)                   # Get agent configuration
-get_execution_status(executionId)             # Check execution status
-cancel_execution(executionId)                 # Cancel running execution
-list_active_executions()                      # List all active executions
+# Logging & Monitoring
+get_agent_logs(agentName, options)            # Retrieve agent execution logs
+get_workflow_history(workflowId)              # Get workflow execution history
 ```
 
 **CRITICAL USAGE RULE**: 
-- Use `execute_agent()` to actually run agents, not simulate responses
-- This returns REAL agent output, not fake content
-- If execution fails, debug and fix - never simulate instead
+- GSC consolidates all agent coordination, execution, and workflow capabilities
+- Use `execute_agent_task()` for real agent execution - NEVER simulate!
+- Workflows handle complex multi-agent orchestration with automatic dependency resolution
+- All 7 layers work together: Resources, Prompts, Sampling, Logging, Elicitation, Tools, Workflows
 
-**Usage**: Coordinate multiple agents working together on complex tasks. The hub provides a shared workspace (blackboard) where agents can create tasks, share results, and communicate through events.
+**Usage**: GSC is the unified framework for all agent operations. It provides a complete 7-layer architecture:
+1. **Resources**: Agent discovery and context management
+2. **Prompts**: Template-based agent instructions
+3. **Sampling**: Response generation control
+4. **Logging**: Complete audit trail
+5. **Elicitation**: Task analysis and clarification
+6. **Tools**: Shell execution and API integration
+7. **Workflows**: Automated multi-agent orchestration
 
 **Example**: 
 ```typescript
-// Create coordinated workflow
-await create_agent_task({
-  sessionId: "api-build-001",
+// Execute single agent task
+const result = await execute_agent_task({
   agentName: "backend-developer",
   task: "Build REST API",
-  input: { endpoints: ["/users", "/posts"] }
+  context: { endpoints: ["/users", "/posts"] }
 });
 
-// Store results for other agents
-await store_context({
+// Run coordinated workflow
+const workflow = await execute_workflow({
+  workflowId: "full-stack-development",
+  variables: {
+    sessionId: "api-build-001",
+    agents: ["backend-developer", "frontend-developer", "qa-tester"],
+    shared_context: { apiSpec: "..." }
+  }
+});
+
+// Share context between agents
+await store_shared_context({
   sessionId: "api-build-001",
   key: "api_endpoints",
   value: { baseUrl: "http://localhost:3000", endpoints: [...] }
 });
-
-// Other agents read the results
-const apiSpec = await get_context({
-  sessionId: "api-build-001",
-  key: "api_endpoints"
-});
 ```
 
-*Full coordination documentation: `.gemini/agents/_shared/knowledge/shared-context-hub.md`*
-
-### Agent Loader MCP
-```
-list_available_agents()              # List all agents
-load_agent_context(agent_name)       # Load agent details
-load_agent_config(agent_name)        # Load configuration
-load_agent_knowledge(agent_name, file) # Load knowledge file
-load_shared_context()                # Load shared resources
-load_shared_tools()                  # Load shared tools
-```
-
-**Usage**: Dynamically load agent contexts on-demand to optimize token usage.
+*Full GSC documentation: `.gemini/mcp/gsc/README.md`*
 
 ### Fabric Integration MCP
 ```
@@ -362,56 +357,45 @@ run_fabric_pipeline(patterns, input)  # Chain patterns
 
 **NEVER DO**: Simulate agent responses - always use execute_agent() for real results!
 
-**Advanced Execution** (With Agent Context Hub):
+**Advanced Execution** (With GSC Workflows):
 ```typescript
-// 1. Create session
-const sessionId = "webapp-build-20251027";
-
-// 2. Create coordinated tasks with dependencies
-await create_agent_task({
-  sessionId,
-  agentName: "security-analyst",
-  task: "Define security requirements for web app",
-  input: { authType: "OAuth2" }
+// 1. Execute pre-defined workflow with automatic orchestration
+const result = await execute_workflow({
+  workflowId: "full-stack-development",
+  variables: {
+    sessionId: "webapp-build-20251027",
+    authType: "OAuth2",
+    features: ["user-auth", "api", "frontend"]
+  }
 });
 
-await create_agent_task({
-  sessionId,
+// 2. Workflow automatically handles:
+// - Sequential: security-analyst → backend-developer
+// - Parallel: backend-developer || frontend-developer
+// - Sequential: both → qa-tester
+// - Shared context between agents
+// - Dependency resolution
+// - Error handling and retries
+
+// 3. Manual agent coordination if needed
+await execute_agent_task({
   agentName: "backend-developer",
   task: "Build API with authentication",
-  input: {},
-  dependencies: ["security-task-id"]  // Waits for security requirements
+  context: {
+    sessionId: "webapp-build-20251027",
+    securityReqs: await get_shared_context("webapp-build-20251027", "security_requirements")
+  }
 });
 
-await create_agent_task({
-  sessionId,
-  agentName: "frontend-developer",
-  task: "Build UI components",
-  input: {},
-  dependencies: []  // Can run in parallel with backend
-});
-
-await create_agent_task({
-  sessionId,
-  agentName: "qa-tester",
-  task: "Integration testing",
-  input: {},
-  dependencies: ["backend-task-id", "frontend-task-id"]  // Waits for both
-});
-
-// 3. Agents share results via context
-await store_context({
-  sessionId,
+// 4. Share results for other agents
+await store_shared_context({
+  sessionId: "webapp-build-20251027",
   key: "api_spec",
   value: { endpoints: [...], auth: "JWT" }
 });
-
-// 4. Track progress
-const readyTasks = await get_ready_tasks({ sessionId });
-const allTasks = await get_task_status({ sessionId });
 ```
 
-**Benefits**: Automatic dependency management, shared context, parallel execution, and progress tracking!
+**Benefits**: Automatic dependency management, shared context, parallel execution, progress tracking, and built-in error handling!
 
 ---
 
@@ -437,21 +421,26 @@ brew install pkg / brew update / brew upgrade
 /fabric <pattern>           # Run fabric pattern
 ```
 
-### Multi-Agent Coordination (Agent Context Hub)
+### GSC Commands (GEMINI Subagent Core)
 ```bash
-# Quick workflow execution
-execute_workflow("agent-execution", {
-  sessionId: "my-session",
-  agentName: "backend-developer",
-  task: "Build API"
-})
+# Agent execution
+execute_agent_task(agentName, task, options)
+get_agent_list()
+get_agent_details(agentName)
 
-# Manual coordination
-create_agent_task(sessionId, agentName, task, input, dependencies)
-get_ready_tasks(sessionId)
-update_task_status(sessionId, taskId, status, output)
-store_context(sessionId, key, value)
-get_context(sessionId, key)
+# Workflow orchestration
+execute_workflow(workflowId, variables)
+get_workflow_status(workflowId)
+list_workflows()
+
+# Context management
+store_shared_context(sessionId, key, value)
+get_shared_context(sessionId, key)
+get_session_context(sessionId)
+
+# Shell & API execution
+execute_shell_command(command, options)
+call_external_api(url, method, data)
 ```
 
 ### System Commands
@@ -489,11 +478,11 @@ bun run create-agent        # Create new agent
 - Chain operations when possible
 - Use workflows for common multi-agent patterns
 
-### Multi-Agent Coordination
-- Create sessions for complex multi-agent tasks
-- Use dependencies to control execution order
-- Store shared data in context for all agents
-- Track task status to monitor progress
+### GSC Workflows
+- Use pre-built workflow templates for common patterns
+- Automatic dependency resolution and execution order
+- Shared context managed automatically between agents
+- Complete logging and audit trail for all operations
 
 ### Quality Assurance
 - Verify outputs before delivery
@@ -507,11 +496,14 @@ bun run create-agent        # Create new agent
 **System Knowledge** (`../agents/_shared/knowledge/`):
 - `system-architecture.md` - Multi-agent system overview
 - `agent-management.md` - Agent details & routing
-- `shared-context-hub.md` - 📋 Complete Agent Context Hub documentation
-- `shared-context-quickref.md` - 🚀 Quick reference for multi-agent coordination
 - `mcp-servers.md` - MCP tools reference
 - `tool-usage.md` - Complete tool commands
 - `quick-reference.md` - Cheat sheets
+
+**GSC Documentation** (`.gemini/mcp/gsc/`):
+- `README.md` - 📋 Complete GSC framework documentation
+- `doc/` - Detailed guides for all 7 layers
+- `workflows/templates/` - Pre-built workflow definitions
 
 **Load with**: `load_shared_context()` or reference directly
 
