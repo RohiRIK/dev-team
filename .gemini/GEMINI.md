@@ -12,92 +12,102 @@ OUTPUT UPON SUCCESS:
 
 🚨 CRITICAL: HOW TO EXECUTE AGENTS (MANDATORY) 🚨
 
-## The Correct Agent Execution Flow
+## The Correct Agent Execution Flow with GSC
 
 When user asks you to have an agent do work:
 
-**Step 1: Load Agent Context**
+**Step 1: Use GSC execute_agent Tool**
 ```javascript
-// Use agent-loader MCP tool
-load_agent({ agentName: "product-manager" })
-// This loads the agent's system prompt, knowledge, and capabilities INTO YOUR CONTEXT
+// Use GSC MCP tool - this actually runs the agent
+execute_agent("pentester", "Run security scan on package.json")
+execute_agent("product-manager", "Summarize yesterday's work")
+execute_agent("backend-developer", "Build REST API with auth")
 ```
 
-**Step 2: Execute AS That Agent**
+**Step 2: GSC Handles Everything**
 ```
-You ARE now that agent. Think and act as them.
-Use their knowledge, tools, and perspective.
-Do the actual work they were asked to do.
+GSC automatically:
+- Loads the agent's system prompt and knowledge
+- Provides the task context
+- Executes with proper sampling settings
+- Logs the execution
+- Returns actual results
 ```
 
 **Step 3: Return Results to User**
 ```
-Report back what the agent did and the results.
-Then unload the agent context (you're Buddy again).
+Report the actual output from execute_agent()
+Include what the agent found/did
+WAIT FOR USER APPROVAL BEFORE NEXT TASK
 ```
 
 ## Example Flow:
 
-**User:** "Have the product-manager summarize yesterday's work"
+**User:** "Have the pentester scan the gsc package.json"
 
 **Buddy Does:**
-1. Load product-manager: `load_agent({ agentName: "product-manager" })`
-2. Now thinking AS product-manager, read summary files
-3. AS product-manager, analyze and create executive summary  
-4. Return to Buddy context
-5. Tell user: "Product manager reviewed yesterday's work. Here's the summary: [actual summary]"
+1. Call GSC: `execute_agent("pentester", "Run security scan on .gemini/mcp/gsc/package.json")`
+2. GSC loads pentester agent and executes the scan
+3. GSC returns actual scan results
+4. Tell user: "Pentester completed security scan. Results: [actual findings from GSC]"
+[STOP AND WAIT FOR USER]
+
+## Available Agent Names:
+
+Use exact names from .gemini/agents/ directory:
+- "pentester" (security testing)
+- "backend-developer" (API/server development)
+- "frontend-developer" (UI/UX development)
+- "devops-engineer" (infrastructure)
+- "qa-tester" (quality assurance)
+- "product-manager" (planning/coordination)
+- "security-analyst" (security review)
+- etc. (see /list-agents or check .gemini/agents/ directory)
 
 ## Key Rules:
 
-✅ **ALWAYS use load_agent() before executing agent work**
-✅ **Actually DO the work as that agent** (don't simulate)
-✅ **Use the agent's perspective and knowledge**
-✅ **Return actual results** to user
+✅ **ALWAYS use execute_agent() for agent tasks**
+✅ **Use exact agent names from .gemini/agents/**
+✅ **Pass clear task descriptions**
+✅ **Return ACTUAL results from GSC** (don't simulate)
 ✅ **WAIT FOR USER APPROVAL BEFORE NEXT TASK**
 
-❌ **NEVER just say "agent loaded"**
-❌ **NEVER simulate what agent would do**
-❌ **NEVER skip the actual work**
-❌ **NEVER use execute_agent() or create_agent_task()**
+❌ **NEVER simulate agent responses**
+❌ **NEVER make up agent output**
+❌ **NEVER skip calling execute_agent()**
+❌ **NEVER continue without user approval**
 
 ## Alternative: You Do It Directly
 
-If user asks YOU to do something (not an agent):
+If user asks YOU (Buddy) to do something:
 - Use Playwright for testing
 - Use file operations directly
 - Use terminal commands
-- No need to load agent context
+- No need to call execute_agent()
 
-**What execute_agent() Does:**
-- ❌ THIS TOOL DOESN'T WORK CORRECTLY - DON'T USE IT
-- It only loads config, doesn't actually execute
-- Use load_agent() instead (see above)
+## Examples:
 
-**You Do NOT:**
-- ❌ Use execute_agent() - it doesn't work properly
-- ❌ Use create_agent_task() - tasks just sit pending
-- ❌ Use execute_workflow() - executor not implemented
-- ❌ "Simulate" anything - always do real work
-- ❌ Continue to next task without user approval
+**CORRECT - Using execute_agent:**
+```
+User: "Have pentester scan the gsc package.json"
+You: execute_agent("pentester", "Run security scan on .gemini/mcp/gsc/package.json")
+GSC: [Returns actual scan results with vulnerabilities found]
+You: "Pentester found 2 issues: [actual findings]"
+[WAIT FOR USER]
+```
 
-**Example - CORRECT:**
-User: "Have product-manager summarize yesterday's work"
-You: [Call load_agent({ agentName: "product-manager" })]
-You: [Now AS product-manager, read files, analyze, create summary]
-You: "Here's the executive summary: [actual summary content]"
-[STOP AND WAIT FOR USER]
-
-**Example - WRONG:**
+**WRONG - Simulating:**
+```
 User: "Have pentester test site"
-You: [Call execute_agent("pentester", "test site")]
-Response: "Agent loaded"
-You: "Pentester is ready to test" ❌ NO! You didn't actually do the work!
+You: "Pentester would check for XSS, SQL injection..." ❌ NO!
+You should: execute_agent("pentester", "Test site for vulnerabilities")
+```
 
 **The Truth:**
-- load_agent() = Load agent context INTO YOUR SESSION, then YOU act as that agent
-- You become the agent temporarily and do the work
-- Then report results and return to being Buddy
-- NO separate agent execution, YOU execute AS them
+- execute_agent() = GSC loads agent, runs task, returns REAL results
+- You report the actual output from GSC
+- NO simulation - always real execution through GSC
+- One task at a time - WAIT FOR USER between tasks
 
 🚨 CRITICAL: WAIT FOR USER APPROVAL BETWEEN TASKS 🚨
 - After completing ANY task, STOP and present results
@@ -252,32 +262,32 @@ Use `/list-agents` for full list or `load_agent_context(agent_name)` for details
 ### GEMINI Subagent Core (GSC) - Unified Agent Framework
 ```
 # Agent Management & Execution
-get_agent_list()                              # List all available agents
-get_agent_details(agentName)                  # Get agent configuration
-execute_agent_task(agentName, task, options)  # Execute agent with full capabilities
+execute_agent(agentName, task, context?, sessionId?, taskId?)  # Execute agent with task
+analyze_task(taskDescription)                                   # Analyze task complexity
 
-# Workflow Orchestration
-execute_workflow(workflowId, variables)       # Run workflow with dependency management
-get_workflow_status(workflowId)               # Check workflow execution status
-list_workflows()                              # List available workflow templates
+# Task Coordination
+create_agent_task(sessionId, agentName, task, input, dependencies?)  # Create coordinated task
+update_task_status(sessionId, taskId, status, output?, progress?, error?)  # Update task
+get_ready_tasks(sessionId)                                      # Get tasks ready to run
+get_all_tasks(sessionId)                                        # Get all session tasks
 
 # Context Management (Blackboard Pattern)
-store_shared_context(sessionId, key, value)   # Store data for agents to share
-get_shared_context(sessionId, key)            # Retrieve shared context
-get_session_context(sessionId)                # Get entire session state
+store_context(sessionId, key, value)          # Store data for agents to share
+get_context(sessionId, key)                   # Retrieve shared context
 
-# Shell & API Execution
-execute_shell_command(command, options)       # Run shell commands
-call_external_api(url, method, data)          # Make HTTP/API calls
+# Workflow Orchestration
+execute_workflow(workflowId, sessionId, variables?)  # Run workflow with dependencies
+list_workflows()                              # List available workflow templates
 
-# Logging & Monitoring
-get_agent_logs(agentName, options)            # Retrieve agent execution logs
-get_workflow_history(workflowId)              # Get workflow execution history
+# Shell Execution
+execute_shell_command(command, args, cwd?, timeout?)  # Run shell commands
 ```
 
-**CRITICAL USAGE RULE**: 
+**CRITICAL USAGE RULES**: 
 - GSC consolidates all agent coordination, execution, and workflow capabilities
-- Use `execute_agent_task()` for real agent execution - NEVER simulate!
+- Use `execute_agent(agentName, task)` for real agent execution - NEVER simulate!
+- Agent names: "pentester", "backend-developer", "frontend-developer", etc. (use exact names from .gemini/agents/)
+- Example: `execute_agent("pentester", "Run security scan on package.json")`
 - Workflows handle complex multi-agent orchestration with automatic dependency resolution
 - All 7 layers work together: Resources, Prompts, Sampling, Logging, Elicitation, Tools, Workflows
 
@@ -290,31 +300,50 @@ get_workflow_history(workflowId)              # Get workflow execution history
 6. **Tools**: Shell execution and API integration
 7. **Workflows**: Automated multi-agent orchestration
 
-**Example**: 
+**Example - Single Agent Execution**: 
 ```typescript
-// Execute single agent task
-const result = await execute_agent_task({
-  agentName: "backend-developer",
-  task: "Build REST API",
-  context: { endpoints: ["/users", "/posts"] }
+// Execute pentester agent
+execute_agent("pentester", "Run security scan on package.json")
+
+// Execute backend-developer agent
+execute_agent("backend-developer", "Build REST API with user authentication", {
+  endpoints: ["/users", "/auth"]
+})
+
+// Analyze task before execution
+analyze_task("Build a secure web application with OAuth2")
+```
+
+**Example - Coordinated Multi-Agent Tasks**:
+```typescript
+// 1. Create session with coordinated tasks
+const sessionId = "api-build-001";
+
+// 2. Create tasks with dependencies
+create_agent_task(sessionId, "backend-developer", "Build API", { 
+  endpoints: ["/users", "/posts"] 
 });
 
-// Run coordinated workflow
-const workflow = await execute_workflow({
-  workflowId: "full-stack-development",
-  variables: {
-    sessionId: "api-build-001",
-    agents: ["backend-developer", "frontend-developer", "qa-tester"],
-    shared_context: { apiSpec: "..." }
-  }
+// 3. Share results between agents
+store_context(sessionId, "api_endpoints", { 
+  baseUrl: "http://localhost:3000", 
+  endpoints: ["/users", "/posts"] 
 });
 
-// Share context between agents
-await store_shared_context({
-  sessionId: "api-build-001",
-  key: "api_endpoints",
-  value: { baseUrl: "http://localhost:3000", endpoints: [...] }
-});
+// 4. Next agent reads shared context
+const apiSpec = get_context(sessionId, "api_endpoints");
+```
+
+**Example - Workflow Execution**:
+```typescript
+// Run pre-built workflow
+execute_workflow("full-stack-development", "webapp-build-001", {
+  authType: "OAuth2",
+  features: ["user-auth", "api", "frontend"]
+})
+
+// List available workflows
+list_workflows()
 ```
 
 *Full GSC documentation: `.gemini/mcp/gsc/README.md`*
@@ -357,7 +386,7 @@ run_fabric_pipeline(patterns, input)  # Chain patterns
 
 **Request**: "Build web app with auth"
 
-**Traditional Execution** (Real Agent Execution):
+**Simple Execution** (Single Agent via GSC):
 1. Analyze requirements (Buddy)
 2. `execute_agent("backend-developer", "Build API with auth")` → REAL API code
 3. `execute_agent("frontend-developer", "Build UI components")` → REAL UI code  
