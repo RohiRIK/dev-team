@@ -128,7 +128,7 @@ export class AgentExecutor {
   }
 
   /**
-   * Execute the agent task (placeholder for Gemini API integration)
+   * Execute the agent task using Gemini CLI non-interactive mode
    */
   private async executeAgentTask(context: {
     agent: LoadedAgent;
@@ -138,19 +138,72 @@ export class AgentExecutor {
     sessionId?: string;
     taskId?: string;
   }): Promise<any> {
-    // This is where we would integrate with Gemini API
-    // For now, return agent context for Buddy/GEMINI to execute
-    return {
-      message: `Agent ${context.agent.name} ready for execution`,
-      agentConfig: context.agent.config,
-      systemPrompt: context.agent.systemPrompt,
-      knowledge: Array.from(context.agent.knowledge.entries()),
-      tools: context.agent.tools,
-      task: context.task,
-      context: context.context,
-      samplingConfig: context.samplingConfig,
-      instruction: `Execute task with agent ${context.agent.name}: ${context.task}`
-    };
+    // Import child_process for running Gemini CLI
+    const { exec } = await import('child_process');
+    const { promisify } = await import('util');
+    const execAsync = promisify(exec);
+
+    try {
+      // Build the prompt for the agent
+      const agentPrompt = `
+You are ${context.agent.name}.
+
+${context.agent.systemPrompt}
+
+Task: ${context.task}
+
+Context: ${JSON.stringify(context.context, null, 2)}
+
+Execute this task and provide a detailed response.
+`;
+
+      // Execute Gemini CLI in non-interactive mode with JSON output
+      const command = `gemini -p ${JSON.stringify(agentPrompt)} --output-format json`;
+      
+      globalLogger.info('Executing agent via Gemini CLI', {
+        agentName: context.agent.name,
+        command: command.substring(0, 100) + '...'
+      });
+
+      const { stdout, stderr } = await execAsync(command, {
+        timeout: 120000, // 2 minute timeout
+        maxBuffer: 10 * 1024 * 1024 // 10MB buffer
+      });
+
+      if (stderr) {
+        globalLogger.warn('Gemini CLI stderr', { stderr });
+      }
+
+      // Parse JSON response
+      const result = JSON.parse(stdout);
+
+      return {
+        agentName: context.agent.name,
+        task: context.task,
+        response: result,
+        executionMethod: 'gemini-cli-non-interactive',
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      globalLogger.error('Agent execution via Gemini CLI failed', {
+        agentName: context.agent.name,
+        error: error instanceof Error ? error.message : String(error)
+      });
+
+      // Fallback: return agent context for manual execution
+      return {
+        message: `Agent ${context.agent.name} ready for execution (CLI execution failed)`,
+        error: error instanceof Error ? error.message : String(error),
+        agentConfig: context.agent.config,
+        systemPrompt: context.agent.systemPrompt,
+        knowledge: Array.from(context.agent.knowledge.entries()),
+        tools: context.agent.tools,
+        task: context.task,
+        context: context.context,
+        samplingConfig: context.samplingConfig,
+        instruction: `Execute task with agent ${context.agent.name}: ${context.task}`
+      };
+    }
   }
 
   /**

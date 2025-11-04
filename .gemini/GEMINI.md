@@ -51,15 +51,23 @@ execute_agent("product-manager", "Summarize yesterday's work")
 - Executes the agent with proper prompts
 - Returns REAL results (not simulated)
 
-**Step 2: GSC Handles Everything**
+**Step 2: GSC Executes Agent in Non-Interactive Mode**
 ```
 GSC automatically:
 - Loads the agent's system prompt and knowledge
-- Provides the task context
-- Executes with proper sampling settings
+- Builds complete prompt with task and context
+- Runs: gemini -p "[agent context + task]" --output-format json
+- Agent executes in isolated non-interactive Gemini CLI session
+- Returns actual agent response (not simulated)
 - Logs the execution
-- Returns actual results
 ```
+
+**How It Works Internally:**
+- Main Gemini session (you) → calls execute_agent() via GSC MCP
+- GSC spawns non-interactive Gemini CLI: `gemini -p "..." --output-format json`
+- Non-interactive session loads full agent context and executes task
+- Result flows back: non-interactive → GSC → you → user
+- This ensures agents have complete isolation and dedicated execution
 
 **Step 3: Return Results to User**
 ```
