@@ -213,17 +213,66 @@ export class AgentExecutor {
     const execAsync = promisify(exec);
 
     try {
-      // Build the prompt for the agent
-      const agentPrompt = `
-You are ${context.agent.name}.
+      // Build the prompt for the agent using best practices from OpenAI prompt engineering
+      const agentPrompt = `# ROLE AND IDENTITY
+You are "${context.agent.name}", a specialized AI agent operating within the GEMINI Subagent Core (GSC) framework.
 
+# SYSTEM INSTRUCTIONS
 ${context.agent.systemPrompt}
 
-Task: ${context.task}
+# TASK SPECIFICATION
+Your assigned task is:
+"""
+${context.task}
+"""
 
-Context: ${JSON.stringify(context.context, null, 2)}
+# PROVIDED CONTEXT
+The following context data is available for this task:
+\`\`\`json
+${JSON.stringify(context.context, null, 2)}
+\`\`\`
 
-Execute this task and provide a detailed response.
+# EXECUTION REQUIREMENTS
+Follow these steps to complete the task:
+
+Step 1 - Analyze the task requirements and identify key objectives
+- List what needs to be accomplished
+- Identify any ambiguities or missing information
+- Determine what tools or knowledge you'll need
+
+Step 2 - Plan your approach
+- Break down the task into logical steps
+- Identify potential challenges or edge cases
+- Consider the provided context and how to use it effectively
+
+Step 3 - Execute the task
+- Work through your plan systematically
+- Document your reasoning and decisions
+- Use the provided context data where relevant
+- If you encounter issues, explain them clearly
+
+Step 4 - Verify and validate
+- Review your work for completeness
+- Check that all requirements are met
+- Identify any limitations or caveats
+
+# OUTPUT FORMAT
+Provide your response in the following JSON structure:
+{
+  "status": "success" | "partial" | "failed",
+  "result": "Your main task result/output here",
+  "reasoning": "Brief explanation of your approach and key decisions",
+  "steps_completed": ["step1", "step2", ...],
+  "issues_encountered": ["issue1 if any", ...],
+  "recommendations": ["suggestion1 if any", ...],
+  "metadata": {
+    "execution_time": "estimated time spent",
+    "confidence": "high" | "medium" | "low",
+    "completeness": "percentage (0-100)"
+  }
+}
+
+Begin execution now. Think step-by-step and be thorough.
 `;
 
       // Execute Gemini CLI in non-interactive mode with JSON output
