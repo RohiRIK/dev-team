@@ -250,6 +250,17 @@ const tools = [
       },
       required: ['executionId']
     }
+  },
+  {
+    name: 'get_agent_result',
+    description: 'Get the full result/report from a completed agent execution - includes all findings, analysis, recommendations, etc.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        executionId: { type: 'string', description: 'Execution ID to get result for' }
+      },
+      required: ['executionId']
+    }
   }
 ];
 
@@ -387,6 +398,44 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             logCount: logs.length,
             logs: logs
           };
+        }
+        break;
+
+      case 'get_agent_result':
+        {
+          const executionId = args.executionId as string;
+          
+          // Try to get from execution status first (in-memory)
+          const execution = agentExecutor.getExecutionStatus(executionId);
+          if (execution && execution.result) {
+            result = {
+              executionId,
+              agentName: execution.agentName,
+              task: execution.task,
+              status: execution.status,
+              startTime: execution.startTime,
+              endTime: execution.endTime,
+              duration: execution.endTime ? execution.endTime - execution.startTime : undefined,
+              result: execution.result,
+              error: execution.error
+            };
+          } else {
+            // Fallback: try to get from context store
+            const storedResult = contextStore.getData('gsc_executions', `result_${executionId}`);
+            if (storedResult) {
+              result = {
+                executionId,
+                result: storedResult,
+                source: 'context_store'
+              };
+            } else {
+              result = {
+                executionId,
+                error: 'Result not found. The execution may not have completed yet, or results were cleared.',
+                suggestion: 'Use get_execution_status to check if execution is still running, or get_agent_execution_logs to see execution logs.'
+              };
+            }
+          }
         }
         break;
 

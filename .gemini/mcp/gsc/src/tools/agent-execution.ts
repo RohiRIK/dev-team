@@ -79,7 +79,11 @@ export class AgentExecutor {
         duration: execution.endTime - execution.startTime
       });
 
-      // Store result in context if session is provided
+      // Store result in context store for retrieval
+      // 1. Store by executionId (always)
+      contextStore.storeData('gsc_executions', `result_${execution.executionId}`, result);
+      
+      // 2. Store by session/task if provided
       if (request.sessionId && request.taskId) {
         contextStore.storeData(request.sessionId, `task_${request.taskId}_result`, result);
       }
@@ -174,7 +178,11 @@ export class AgentExecutor {
         success: true
       });
 
-      // Store result in context if session is provided
+      // Store result in context store for retrieval
+      // 1. Store by executionId (always)
+      contextStore.storeData('gsc_executions', `result_${executionId}`, result);
+      
+      // 2. Store by session/task if provided
       if (request.sessionId && request.taskId) {
         contextStore.storeData(request.sessionId, `task_${request.taskId}_result`, result);
       }
