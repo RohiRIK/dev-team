@@ -213,13 +213,38 @@ export class AgentExecutor {
     const execAsync = promisify(exec);
 
     try {
+      // Log knowledge files being loaded
+      const knowledgeFiles = Array.from(context.agent.knowledge.keys());
+      globalLogger.info('Agent knowledge loaded', {
+        agentName: context.agent.name,
+        knowledgeFileCount: knowledgeFiles.length,
+        knowledgeFiles: knowledgeFiles,
+        systemPromptLength: context.agent.systemPrompt.length
+      });
+
+      // Build knowledge section for prompt
+      let knowledgeSection = '';
+      if (context.agent.knowledge.size > 0) {
+        knowledgeSection = `
+# KNOWLEDGE BASE
+You have access to the following knowledge files:
+
+${Array.from(context.agent.knowledge.entries()).map(([filename, content]) => `
+## Knowledge File: ${filename}
+\`\`\`
+${content}
+\`\`\`
+`).join('\n')}
+`;
+      }
+
       // Build the prompt for the agent using best practices from OpenAI prompt engineering
       const agentPrompt = `# ROLE AND IDENTITY
 You are "${context.agent.name}", a specialized AI agent operating within the GEMINI Subagent Core (GSC) framework.
 
 # SYSTEM INSTRUCTIONS
 ${context.agent.systemPrompt}
-
+${knowledgeSection}
 # TASK SPECIFICATION
 Your assigned task is:
 """

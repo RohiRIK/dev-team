@@ -1,0 +1,30 @@
+[package]
+name = "buddy-ai"
+version = "0.1.0"
+edition = "2021"
+authors = ["Dev Team"]
+description = "Beautiful terminal launcher for Buddy AI with MCP server management"
+
+[dependencies]
+colored = "2.1"
+indicatif = "0.17"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.40", features = ["full"] }
+anyhow = "1.0"
+ctrlc = "3.4"
+rand = "0.8"
+console = "0.15"
+owo-colors = "4.0"
+config = "0.14"
+toml = "0.8"
+sysinfo = "0.32"
+figlet-rs = "0.1"
+crossterm = "0.28"
+dialoguer = "0.11"
+rust-embed = "8.5"
+dirs = "5.0"
+
+[[bin]]
+name = "buddy-ai"
+path = "src/main.rs"

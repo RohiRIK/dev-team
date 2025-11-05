@@ -225,6 +225,31 @@ const tools = [
       type: 'object',
       properties: {}
     }
+  },
+  // Logging and Monitoring
+  {
+    name: 'get_logs',
+    description: 'Get GSC logs - filter by level, agent, session, or time range',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        level: { type: 'string', enum: ['debug', 'info', 'warn', 'error'], description: 'Filter by log level' },
+        agentName: { type: 'string', description: 'Filter by agent name' },
+        sessionId: { type: 'string', description: 'Filter by session ID' },
+        limit: { type: 'number', description: 'Maximum number of logs to return (default: 50)' }
+      }
+    }
+  },
+  {
+    name: 'get_agent_execution_logs',
+    description: 'Get detailed logs for a specific execution ID - shows what knowledge was loaded, steps taken, etc.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        executionId: { type: 'string', description: 'Execution ID to get logs for' }
+      },
+      required: ['executionId']
+    }
   }
 ];
 
@@ -326,6 +351,43 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'list_active_executions':
         result = agentExecutor.getActiveExecutions();
+        break;
+
+      // Logging and Monitoring
+      case 'get_logs':
+        {
+          let logs = globalLogger.getLogs();
+          
+          // Apply filters
+          if (args.level) {
+            logs = logs.filter(log => log.level === args.level);
+          }
+          if (args.agentName) {
+            logs = logs.filter(log => log.agentId === args.agentName || log.metadata?.agentName === args.agentName);
+          }
+          if (args.sessionId) {
+            logs = logs.filter(log => log.sessionId === args.sessionId);
+          }
+          
+          // Limit results
+          const limit = args.limit || 50;
+          result = logs.slice(-limit);
+        }
+        break;
+
+      case 'get_agent_execution_logs':
+        {
+          const executionId = args.executionId as string;
+          const logs = globalLogger.getLogs().filter(log => 
+            log.metadata?.executionId === executionId ||
+            log.message.includes(executionId)
+          );
+          result = {
+            executionId,
+            logCount: logs.length,
+            logs: logs
+          };
+        }
         break;
 
       // Task Analysis
