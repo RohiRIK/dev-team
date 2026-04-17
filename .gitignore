@@ -2,8 +2,7 @@
 node_modules/
 bun.lockb
 dist/
-*.js
-*.d.ts
+*.tsbuildinfo
 .env
 .env.local
 .env.development.local
@@ -82,3 +81,19 @@ token.txt
 # Ignored workflow files
 /agents/automation-specialist/knowledge/workflows/
 .gemini/agents/automation-specialist/knowledge/workflows
+
+specs/
+plans/
+
+# Plugin runtime state (per-workspace task-tracker JSON)
+.dev-team/
+state/
+
+# Gemini legacy build artefacts (retired in Phase 6)
+.gemini/launcher/target/
+.gemini/mcp/**/node_modules/
+
+# Databases
+*.db
+*.db-shm
+*.db-wal

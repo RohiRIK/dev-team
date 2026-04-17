@@ -1,19 +1,19 @@
 {
   "name": "dev-team",
-  "version": "1.0.0",
-  "description": "A complete multi-agent AI system with **Buddy** as the main orchestrator, managing 29+ specialized agents through an advanced coordination and execution architecture.",
-  "main": "index.js",
-  "directories": {
-    "doc": "doc"
-  },
+  "version": "0.1.0",
+  "description": "A dev-team of specialized subagents orchestrated by /buddy, with JSON task tracking.",
+  "private": true,
+  "type": "module",
+  "workspaces": ["mcp/*"],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "bun test",
+    "typecheck": "bunx tsc --noEmit",
+    "lint": "bunx biome check .",
+    "format": "bunx biome format --write ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "@playwright/test": "^1.56.1"
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/bun": "latest",
+    "typescript": "^5.6.3"
   }
 }
