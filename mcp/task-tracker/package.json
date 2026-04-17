@@ -1,0 +1,17 @@
+{
+  "name": "@dev-team/task-tracker",
+  "version": "0.1.0",
+  "description": "Single-purpose MCP server: persist /buddy task list as JSON under CLAUDE_PROJECT_DIR/.dev-team/tasks.json.",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "bun src/index.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.0",
+    "ulid": "^2.3.0",
+    "zod": "^3.23.8"
+  }
+}
