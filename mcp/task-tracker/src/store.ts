@@ -4,11 +4,10 @@ import { type State, StateSchema, emptyState } from "./types.ts"
 import { writeAtomic } from "./writeAtomic.ts"
 
 export const stateDir = (): string => {
-  const dir = process.env.DEV_TEAM_STATE_DIR
-  if (!dir) {
-    throw new Error("DEV_TEAM_STATE_DIR not set (expected ${CLAUDE_PROJECT_DIR}/.dev-team)")
-  }
-  return dir
+  const explicit = process.env.DEV_TEAM_STATE_DIR
+  if (explicit && !explicit.includes("${")) return explicit
+  const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd()
+  return join(projectDir, ".dev-team")
 }
 
 export const statePath = (): string => join(stateDir(), "tasks.json")

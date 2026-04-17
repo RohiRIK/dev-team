@@ -2,10 +2,7 @@
   "mcpServers": {
     "task-tracker": {
       "command": "bun",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/task-tracker/src/index.ts"],
-      "env": {
-        "DEV_TEAM_STATE_DIR": "${CLAUDE_PROJECT_DIR}/.dev-team"
-      }
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/task-tracker/src/index.ts"]
     }
   }
 }
