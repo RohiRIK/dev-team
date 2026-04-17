@@ -1,0 +1,46 @@
+import { z } from "zod"
+import { ArtifactSchema, type State, type Task, TaskStatus } from "../types.ts"
+
+export const UpdateTaskInput = z.object({
+  id: z.string().min(1),
+  status: TaskStatus.optional(),
+  description: z.string().max(1000).optional(),
+  result: z.string().max(500).optional(),
+  artifacts: z.array(ArtifactSchema).optional(),
+})
+export type UpdateTaskInput = z.infer<typeof UpdateTaskInput>
+
+export function updateTask(state: State, input: UpdateTaskInput): { state: State; result: Task } {
+  const parsed = UpdateTaskInput.parse(input)
+  const current = state.tasks.find((t) => t.id === parsed.id)
+  if (!current) throw new Error(`task not found: ${parsed.id}`)
+
+  if (parsed.status === "completed") {
+    const unmet = current.dependsOn.filter((depId) => {
+      const dep = state.tasks.find((t) => t.id === depId)
+      return !dep || dep.status !== "completed"
+    })
+    if (unmet.length) {
+      throw new Error(`cannot complete — unmet dependencies: ${unmet.join(", ")}`)
+    }
+  }
+
+  const now = new Date().toISOString()
+  const next: Task = {
+    ...current,
+    status: parsed.status ?? current.status,
+    description: parsed.description ?? current.description,
+    result: parsed.result ?? current.result,
+    artifacts: parsed.artifacts ?? current.artifacts,
+    updatedAt: now,
+    startedAt:
+      parsed.status === "in_progress" && current.startedAt === null ? now : current.startedAt,
+    completedAt: parsed.status === "completed" ? now : current.completedAt,
+  }
+  const nextState: State = {
+    ...state,
+    updatedAt: now,
+    tasks: state.tasks.map((t) => (t.id === next.id ? next : t)),
+  }
+  return { state: nextState, result: next }
+}
