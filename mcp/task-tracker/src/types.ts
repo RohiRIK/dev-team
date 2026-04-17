@@ -1,12 +1,6 @@
 import { z } from "zod"
 
-export const TaskStatus = z.enum([
-  "pending",
-  "in_progress",
-  "blocked",
-  "completed",
-  "cancelled",
-])
+export const TaskStatus = z.enum(["pending", "in_progress", "blocked", "completed", "cancelled"])
 export type TaskStatus = z.infer<typeof TaskStatus>
 
 export const ArtifactSchema = z.object({
