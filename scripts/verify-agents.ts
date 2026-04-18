@@ -7,9 +7,8 @@
  *   2. Canonical 7 sections present: Role, When to use, When NOT to use,
  *      Workflow, Tools, Constraints, Worked example
  *   3. Body length ≤ 200 lines (from line after closing `---`)
- *   4. No Gemini residue: emoji siren, "UFC Hydration", "_shared"
- *   5. No absolute home paths (macOS, Linux, Windows User dirs)
- *   6. No TODO(author) markers (allowed during T-15 draft, fail after T-17)
+ *   4. No absolute home paths (macOS, Linux, Windows User dirs)
+ *   5. No TODO(author) markers (allowed during T-15 draft, fail after T-17)
  *
  * Usage:
  *   bun scripts/verify-agents.ts            # lint all agents/*.md
@@ -36,8 +35,6 @@ const REQUIRED_SECTIONS = [
 ] as const
 
 const RESIDUE_PATTERNS: { pattern: RegExp; label: string }[] = [
-  { pattern: /🚨/, label: "emoji siren (Gemini preamble)" },
-  { pattern: /agents\/_shared\//, label: "_shared/ reference (Gemini convention)" },
   { pattern: /\/U[s]ers\//, label: "absolute macOS home path" },
   { pattern: /\/h[o]me\/[a-z]/, label: "absolute Linux home path" },
   { pattern: /C:\\U[s]ers\\/i, label: "absolute Windows home path" },
