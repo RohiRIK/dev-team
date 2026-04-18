@@ -26,9 +26,12 @@ const zodToJsonSchema = (schema: z.ZodTypeAny): Record<string, unknown> => {
     if (!isOptional) required.push(key)
     if (unwrapped instanceof z.ZodString) properties[key] = { type: "string" }
     else if (unwrapped instanceof z.ZodNumber) properties[key] = { type: "number" }
-    else if (unwrapped instanceof z.ZodArray)
-      properties[key] = { type: "array", items: { type: "string" } }
-    else if (unwrapped instanceof z.ZodEnum)
+    else if (unwrapped instanceof z.ZodArray) {
+      const element = unwrapped._def.type as z.ZodTypeAny
+      const items =
+        element instanceof z.ZodString ? { type: "string" } : { type: "object" }
+      properties[key] = { type: "array", items }
+    } else if (unwrapped instanceof z.ZodEnum)
       properties[key] = { type: "string", enum: unwrapped.options }
     else properties[key] = {}
   }
