@@ -7,7 +7,9 @@ const saved: Record<string, string | undefined> = {}
 beforeEach(() => {
   saved.DEV_TEAM_STATE_DIR = process.env.DEV_TEAM_STATE_DIR
   saved.CLAUDE_PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR
+  // biome-ignore lint/performance/noDelete: process.env delete is required to fully unset keys for test isolation
   delete process.env.DEV_TEAM_STATE_DIR
+  // biome-ignore lint/performance/noDelete: process.env delete is required to fully unset keys for test isolation
   delete process.env.CLAUDE_PROJECT_DIR
 })
 

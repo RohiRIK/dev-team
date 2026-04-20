@@ -86,7 +86,7 @@ async function main(): Promise<void> {
   const block = renderBlock()
 
   if (!check) {
-    process.stdout.write(block + "\n")
+    process.stdout.write(`${block}\n`)
     return
   }
 

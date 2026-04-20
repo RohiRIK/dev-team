@@ -57,41 +57,12 @@ secret
 secrets
 token.txt
 
-# Temporary/Backup files
-*-Rohi’s MacBook Pro.mcp_pids
-.gemini/*.old
-.gemini/*.backup
-
-# Generated files
-/agents/cv-specialist/output/resume.pdf
-/agents/cv-specialist/output/temp/
-
-# Bun related files in scripts directory
-/scripts/bun.lock
-/scripts/package.json
-/scripts/tsconfig.json
-
-# MCP generated package.json files
-/mcp/template/package.json
-/mcp/workflow-loader/package.json
-
-# Cloned repositories within agents (like pandoc-moderncv)
-/agents/cv-specialist/templates/pandoc-moderncv/
-
-# Ignored workflow files
-/agents/automation-specialist/knowledge/workflows/
-.gemini/agents/automation-specialist/knowledge/workflows
-
 specs/
 plans/
 
 # Plugin runtime state (per-workspace task-tracker JSON)
 .dev-team/
 state/
-
-# Gemini legacy build artefacts (retired in Phase 6)
-.gemini/launcher/target/
-.gemini/mcp/**/node_modules/
 
 # Databases
 *.db

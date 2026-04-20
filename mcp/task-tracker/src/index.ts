@@ -7,9 +7,9 @@ import { loadState, saveState } from "./store.ts"
 import { CompleteTaskInput, completeTask } from "./tools/completeTask.ts"
 import { CreateTaskInput, createTask } from "./tools/createTask.ts"
 import { GetTaskInput, getTask } from "./tools/getTask.ts"
+import { health } from "./tools/health.ts"
 import { ListTasksInput, listTasks } from "./tools/listTasks.ts"
 import { UpdateTaskInput, updateTask } from "./tools/updateTask.ts"
-import { health } from "./tools/health.ts"
 
 const VERSION = "0.1.0"
 
@@ -31,8 +31,7 @@ const zodToJsonSchema = (schema: z.ZodTypeAny): Record<string, unknown> => {
     else if (unwrapped instanceof z.ZodNumber) properties[key] = { type: "number" }
     else if (unwrapped instanceof z.ZodArray) {
       const element = unwrapped._def.type as z.ZodTypeAny
-      const items =
-        element instanceof z.ZodString ? { type: "string" } : { type: "object" }
+      const items = element instanceof z.ZodString ? { type: "string" } : { type: "object" }
       properties[key] = { type: "array", items }
     } else if (unwrapped instanceof z.ZodEnum)
       properties[key] = { type: "string", enum: unwrapped.options }
