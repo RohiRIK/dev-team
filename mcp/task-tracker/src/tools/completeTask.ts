@@ -13,7 +13,7 @@ export function completeTask(
   state: State,
   input: CompleteTaskInput,
 ): { state: State; result: Task } {
-  const { id, result, artifacts } = CompleteTaskInput.parse(input)
+  const { id, result, artifacts } = input
   return updateTask(state, {
     id,
     status: TaskStatus.enum.completed,

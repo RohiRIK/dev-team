@@ -1,0 +1,3 @@
+# False positive: worked example in pentester agent uses staging.example.com URL
+# to illustrate SQL injection testing — not a real credential.
+agents/pentester.md:curl-auth-user:71

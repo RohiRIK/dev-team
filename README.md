@@ -46,7 +46,7 @@ Agents are Bash-enabled but do not install CLIs themselves. Install the ones the
 | `cloud-architect` | `terraform`, `aws`, `gcloud`, `az` |
 | `qa-tester` | `playwright`, `vitest`, `bun test`, `pytest` |
 | `security-analyst` | `bunx varlock`, `trivy`, `semgrep`, `gitleaks` |
-| `pentaster` | `nmap`, `nikto`, `ffuf` *(authorised testing only)* |
+| `pentester` | `nmap`, `nikto`, `ffuf` *(authorised testing only)* |
 | `ml-engineer` | `uv`, `python`, `jupyter` |
 | `ui-ux-designer` | *no Bash — no CLI deps* |
 | `github-manager` | `gh`, `git` |
@@ -96,7 +96,7 @@ Full routing matrix and three worked examples: `commands/buddy.md`.
 | `ui-ux-designer` | Flows, wireframes, design tokens, a11y | Static design (no Bash) |
 | `qa-tester` | E2E, integration, regression, flake triage | Edit-only (no Write) |
 | `security-analyst` | Defensive review, threat modelling, audits | Review-only (no Write/Edit) |
-| `pentaster` | Authorised offensive PoCs, minimal exploits | Review-only (no Write/Edit) |
+| `pentester` | Authorised offensive PoCs, minimal exploits | Review-only (no Write/Edit) |
 | `github-manager` | Commits, branches, PRs, releases, gh CLI | CLI-only (no Write/Edit) |
 | `agent-builder` | Scaffold / port / validate subagents via the `create-agent` skill | Full-stack |
 
@@ -110,7 +110,7 @@ Plugin-shipped skills (in `skills/`). Agents invoke these via the built-in `Skil
 |---|---|
 | `create-agent` | `agent-builder` — full lifecycle of a dev-team agent (create / port / research / validate / update) |
 
-Additional skills (`CodingStandards`, `TddWorkflow`, `SecurityReview`, `BackendDesign`, `FrontendDesign`, `CreateSkill`) ship in subsequent minor versions — see `specs/plugin-pivot.md` §5.8.
+Additional skills (`CodingStandards`, `TddWorkflow`, `SecurityReview`, `BackendDesign`, `FrontendDesign`, `CreateSkill`) ship in subsequent minor versions.
 
 ## State
 
@@ -141,7 +141,7 @@ bun scripts/gen-prereqs.ts               # regenerate Prerequisites block
 bun scripts/gen-prereqs.ts --check       # fail CI if README block drifted
 ```
 
-Full plan: `plans/plugin-pivot.md`. Spec: `specs/plugin-pivot.md`. Canonical agent shape: `skills/create-agent/references/agent-structure.md`.
+Canonical agent shape: `skills/create-agent/references/agent-structure.md`.
 
 ## License
 

@@ -28,7 +28,7 @@ const PER_AGENT_CLIS: AgentCli[] = [
   { agent: "cloud-architect", clis: ["terraform", "aws", "gcloud", "az"] },
   { agent: "qa-tester", clis: ["playwright", "vitest", "bun test", "pytest"] },
   { agent: "security-analyst", clis: ["bunx varlock", "trivy", "semgrep", "gitleaks"] },
-  { agent: "pentaster", clis: ["nmap", "nikto", "ffuf"], note: "authorised testing only" },
+  { agent: "pentester", clis: ["nmap", "nikto", "ffuf"], note: "authorised testing only" },
   { agent: "ml-engineer", clis: ["uv", "python", "jupyter"] },
   { agent: "ui-ux-designer", clis: [], note: "no Bash — no CLI deps" },
   { agent: "github-manager", clis: ["gh", "git"] },

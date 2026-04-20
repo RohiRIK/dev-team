@@ -49,10 +49,7 @@ const RESIDUE_PATTERNS: { pattern: RegExp; label: string }[] = [
 
 const SECTION_REGEXES = REQUIRED_SECTIONS.map((section) => ({
   section,
-  re: new RegExp(
-    `^##\\s+${section.replace(/\(/g, "\\(").replace(/\)/g, "\\)")}\\b`,
-    "m",
-  ),
+  re: new RegExp(`^##\\s+${section.replace(/\(/g, "\\(").replace(/\)/g, "\\)")}\\b`, "m"),
 }))
 
 const TODO_AUTHOR = /TODO\(author\)/
@@ -90,8 +87,7 @@ function lintFile(
     return findings
   }
 
-  const required =
-    mode === "agent" ? REQUIRED_FRONTMATTER_AGENT : REQUIRED_FRONTMATTER_SKILL
+  const required = mode === "agent" ? REQUIRED_FRONTMATTER_AGENT : REQUIRED_FRONTMATTER_SKILL
   const keys = parseYamlKeys(parts.yaml)
   for (const k of required) {
     if (!keys.has(k)) push(`frontmatter missing key: ${k}`)
@@ -150,9 +146,7 @@ async function main(): Promise<void> {
   }
 
   const mode: "agent" | "skill" = skillsMode ? "skill" : "agent"
-  const raws = await Promise.all(
-    targets.map((t) => readFile(t.abs, "utf8").catch(() => "")),
-  )
+  const raws = await Promise.all(targets.map((t) => readFile(t.abs, "utf8").catch(() => "")))
   const allFindings: Finding[] = []
   targets.forEach((t, i) => {
     const raw = raws[i]
@@ -171,9 +165,7 @@ async function main(): Promise<void> {
   for (const { file, issue } of allFindings) {
     console.error(`[verify-agents] ✘ ${file}: ${issue}`)
   }
-  console.error(
-    `[verify-agents] ${allFindings.length} issue(s) across ${targets.length} file(s)`,
-  )
+  console.error(`[verify-agents] ${allFindings.length} issue(s) across ${targets.length} file(s)`)
   process.exit(1)
 }
 

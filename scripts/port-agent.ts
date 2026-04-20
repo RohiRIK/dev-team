@@ -17,6 +17,7 @@
 import { existsSync } from "node:fs"
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import { dirname, join, resolve } from "node:path"
+import { parseArgs } from "node:util"
 
 const ROOT = resolve(import.meta.dir, "..")
 const OUT_DIR = join(ROOT, "agents")
@@ -145,17 +146,23 @@ async function portAgent(slug: string, dryRun: boolean, srcDir: string): Promise
   console.log(`[port-agent] wrote ${target} (${out.split("\n").length} lines)`)
 }
 
-const argv = process.argv.slice(2)
-const slug = argv.find((a) => !a.startsWith("--"))
-const srcIdx = argv.indexOf("--src")
-const srcArg = srcIdx !== -1 ? argv[srcIdx + 1] : undefined
+const { values, positionals } = parseArgs({
+  args: process.argv.slice(2),
+  options: {
+    src: { type: "string" },
+    "dry-run": { type: "boolean", default: false },
+  },
+  allowPositionals: true,
+})
+const slug = positionals[0]
+const srcArg = values.src
 
 if (!slug || !srcArg) {
   console.error("usage: bun scripts/port-agent.ts <slug> --src <source-dir> [--dry-run]")
   process.exit(1)
 }
 const srcDir = resolve(srcArg)
-const dryRun = argv.includes("--dry-run")
+const dryRun = values["dry-run"] ?? false
 portAgent(slug, dryRun, srcDir).catch((err: Error) => {
   console.error(`[port-agent] ${err.message}`)
   process.exit(1)

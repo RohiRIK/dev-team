@@ -25,6 +25,7 @@ export const TaskSchema = z.object({
   tags: z.array(z.string().min(1).max(32)).default([]),
 })
 export type Task = z.infer<typeof TaskSchema>
+export type TaskSummary = Pick<Task, "id" | "agent" | "title" | "status" | "updatedAt">
 
 export const StateSchema = z.object({
   version: z.literal(1),

@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { type State, type Task, TaskStatus } from "../types.ts"
+import { type State, TaskStatus, type TaskSummary } from "../types.ts"
 
 export const ListTasksInput = z.object({
   status: TaskStatus.optional(),
@@ -8,11 +8,8 @@ export const ListTasksInput = z.object({
 })
 export type ListTasksInput = z.infer<typeof ListTasksInput>
 
-export function listTasks(
-  state: State,
-  input: ListTasksInput,
-): Pick<Task, "id" | "agent" | "title" | "status" | "updatedAt">[] {
-  const { status, agent, limit } = ListTasksInput.parse(input)
+export function listTasks(state: State, input: ListTasksInput): TaskSummary[] {
+  const { status, agent, limit } = input
   let rows = state.tasks
   if (status) rows = rows.filter((t) => t.status === status)
   if (agent) rows = rows.filter((t) => t.agent === agent)

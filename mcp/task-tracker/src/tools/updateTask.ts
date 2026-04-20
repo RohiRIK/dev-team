@@ -11,11 +11,10 @@ export const UpdateTaskInput = z.object({
 export type UpdateTaskInput = z.infer<typeof UpdateTaskInput>
 
 export function updateTask(state: State, input: UpdateTaskInput): { state: State; result: Task } {
-  const parsed = UpdateTaskInput.parse(input)
-  const current = state.tasks.find((t) => t.id === parsed.id)
-  if (!current) throw new Error(`task not found: ${parsed.id}`)
+  const current = state.tasks.find((t) => t.id === input.id)
+  if (!current) throw new Error(`task not found: ${input.id}`)
 
-  if (parsed.status === TaskStatus.enum.completed) {
+  if (input.status === TaskStatus.enum.completed) {
     const unmet = current.dependsOn.filter((depId) => {
       const dep = state.tasks.find((t) => t.id === depId)
       return !dep || dep.status !== TaskStatus.enum.completed
@@ -28,16 +27,16 @@ export function updateTask(state: State, input: UpdateTaskInput): { state: State
   const now = new Date().toISOString()
   const next: Task = {
     ...current,
-    status: parsed.status ?? current.status,
-    description: parsed.description ?? current.description,
-    result: parsed.result ?? current.result,
-    artifacts: parsed.artifacts ?? current.artifacts,
+    status: input.status ?? current.status,
+    description: input.description ?? current.description,
+    result: input.result ?? current.result,
+    artifacts: input.artifacts ?? current.artifacts,
     updatedAt: now,
     startedAt:
-      parsed.status === TaskStatus.enum.in_progress && current.startedAt === null
+      input.status === TaskStatus.enum.in_progress && current.startedAt === null
         ? now
         : current.startedAt,
-    completedAt: parsed.status === TaskStatus.enum.completed ? now : current.completedAt,
+    completedAt: input.status === TaskStatus.enum.completed ? now : current.completedAt,
   }
   const nextState: State = {
     ...state,

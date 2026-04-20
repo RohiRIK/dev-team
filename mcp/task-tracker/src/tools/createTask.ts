@@ -15,8 +15,7 @@ export function createTask(
   state: State,
   input: CreateTaskInput,
 ): { state: State; result: { id: string; status: "pending" } } {
-  const parsed = CreateTaskInput.parse(input)
-  const deps = parsed.dependsOn ?? []
+  const deps = input.dependsOn ?? []
   const ids = new Set(state.tasks.map((t) => t.id))
   const missing = deps.filter((d) => !ids.has(d))
   if (missing.length) {
@@ -25,9 +24,9 @@ export function createTask(
   const now = new Date().toISOString()
   const task: Task = TaskSchema.parse({
     id: `t_${ulid()}`,
-    agent: parsed.agent,
-    title: parsed.title,
-    description: parsed.description ?? "",
+    agent: input.agent,
+    title: input.title,
+    description: input.description ?? "",
     status: TaskStatus.enum.pending,
     dependsOn: deps,
     createdAt: now,
@@ -36,7 +35,7 @@ export function createTask(
     completedAt: null,
     result: null,
     artifacts: [],
-    tags: parsed.tags ?? [],
+    tags: input.tags ?? [],
   })
   const nextState: State = {
     ...state,
