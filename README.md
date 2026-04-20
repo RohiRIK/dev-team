@@ -4,6 +4,21 @@ A Claude Code plugin that turns a single chat into a small multi-agent dev team.
 
 14 specialist agents. One orchestrator command. One MCP server. No external services.
 
+## Quick start
+
+```bash
+# 1. Add the marketplace and install (one-time)
+claude plugin marketplace add RohiRIK/dev-team
+claude plugin install dev-team
+
+# 2. Open any project in Claude Code and run your first task
+/buddy add a /health endpoint to the API
+```
+
+That's it. `/buddy` plans the work, spins up the right agents, and tracks progress in `.dev-team/tasks.json`.
+
+---
+
 ## Status
 
 **v0.1.0 — preview.** Ships the 14 canonical agents, `/buddy` orchestrator, `task-tracker` MCP, and the `create-agent` skill. Install via `claude plugin marketplace add RohiRIK/dev-team` (see below).
