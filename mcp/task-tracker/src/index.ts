@@ -9,6 +9,7 @@ import { CreateTaskInput, createTask } from "./tools/createTask.ts"
 import { GetTaskInput, getTask } from "./tools/getTask.ts"
 import { ListTasksInput, listTasks } from "./tools/listTasks.ts"
 import { UpdateTaskInput, updateTask } from "./tools/updateTask.ts"
+import { health } from "./tools/health.ts"
 
 const server = new Server(
   { name: "task-tracker", version: "0.1.0" },
@@ -68,6 +69,11 @@ const tools = [
       "Mark a task completed. Sets status=completed, completedAt. Optionally records result + artifacts.",
     inputSchema: zodToJsonSchema(CompleteTaskInput),
   },
+  {
+    name: "health",
+    description: "Return server health: status, name, version, and current task count. Read-only.",
+    inputSchema: { type: "object", properties: {}, required: [] },
+  },
 ]
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools }))
@@ -98,6 +104,10 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       case "complete_task": {
         const { state: next, result } = completeTask(state, args as never)
         await saveState(next)
+        return { content: [{ type: "text", text: JSON.stringify(result) }] }
+      }
+      case "health": {
+        const result = health(state)
         return { content: [{ type: "text", text: JSON.stringify(result) }] }
       }
       default:
