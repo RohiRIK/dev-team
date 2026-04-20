@@ -15,10 +15,10 @@ export function updateTask(state: State, input: UpdateTaskInput): { state: State
   const current = state.tasks.find((t) => t.id === parsed.id)
   if (!current) throw new Error(`task not found: ${parsed.id}`)
 
-  if (parsed.status === "completed") {
+  if (parsed.status === TaskStatus.enum.completed) {
     const unmet = current.dependsOn.filter((depId) => {
       const dep = state.tasks.find((t) => t.id === depId)
-      return !dep || dep.status !== "completed"
+      return !dep || dep.status !== TaskStatus.enum.completed
     })
     if (unmet.length) {
       throw new Error(`cannot complete — unmet dependencies: ${unmet.join(", ")}`)
@@ -34,8 +34,10 @@ export function updateTask(state: State, input: UpdateTaskInput): { state: State
     artifacts: parsed.artifacts ?? current.artifacts,
     updatedAt: now,
     startedAt:
-      parsed.status === "in_progress" && current.startedAt === null ? now : current.startedAt,
-    completedAt: parsed.status === "completed" ? now : current.completedAt,
+      parsed.status === TaskStatus.enum.in_progress && current.startedAt === null
+        ? now
+        : current.startedAt,
+    completedAt: parsed.status === TaskStatus.enum.completed ? now : current.completedAt,
   }
   const nextState: State = {
     ...state,

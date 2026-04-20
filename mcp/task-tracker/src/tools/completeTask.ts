@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { ArtifactSchema, type State, type Task } from "../types.ts"
+import { ArtifactSchema, type State, type Task, TaskStatus } from "../types.ts"
 import { updateTask } from "./updateTask.ts"
 
 export const CompleteTaskInput = z.object({
@@ -16,7 +16,7 @@ export function completeTask(
   const { id, result, artifacts } = CompleteTaskInput.parse(input)
   return updateTask(state, {
     id,
-    status: "completed",
+    status: TaskStatus.enum.completed,
     ...(result !== undefined && { result }),
     ...(artifacts !== undefined && { artifacts }),
   })

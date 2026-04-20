@@ -1,6 +1,6 @@
 import { ulid } from "ulid"
 import { z } from "zod"
-import { type State, type Task, TaskSchema } from "../types.ts"
+import { type State, type Task, TaskSchema, TaskStatus } from "../types.ts"
 
 export const CreateTaskInput = z.object({
   agent: z.string().min(1).max(64),
@@ -28,7 +28,7 @@ export function createTask(
     agent: parsed.agent,
     title: parsed.title,
     description: parsed.description ?? "",
-    status: "pending",
+    status: TaskStatus.enum.pending,
     dependsOn: deps,
     createdAt: now,
     updatedAt: now,

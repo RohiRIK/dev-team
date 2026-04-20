@@ -1,12 +1,12 @@
 #!/usr/bin/env bun
 /**
- * port-agent.ts — port one Gemini agent to Claude plugin shape.
+ * port-agent.ts — port one agent from an external source to Claude plugin shape.
  *
  * Usage:
- *   bun scripts/port-agent.ts <slug>            # write agents/<slug>.md
- *   bun scripts/port-agent.ts <slug> --dry-run  # print to stdout
+ *   bun scripts/port-agent.ts <slug> --src <dir>            # write agents/<slug>.md
+ *   bun scripts/port-agent.ts <slug> --src <dir> --dry-run  # print to stdout
  *
- * Source: .gemini/agents/<slug>/{agent.json,agent.md}
+ * Source: <dir>/<slug>/{agent.json,agent.md}
  * Target: agents/<slug>.md
  *
  * Emits a skeleton with YAML frontmatter + canonical 7 sections (§5.6).
@@ -19,7 +19,6 @@ import { mkdir, readFile, writeFile } from "node:fs/promises"
 import { dirname, join, resolve } from "node:path"
 
 const ROOT = resolve(import.meta.dir, "..")
-const SRC_DIR = join(ROOT, ".gemini", "agents")
 const OUT_DIR = join(ROOT, "agents")
 
 type GeminiAgentJson = {
@@ -123,9 +122,9 @@ TODO(author): one short input → steps → output example.
 `
 }
 
-async function portAgent(slug: string, dryRun: boolean): Promise<void> {
-  const srcJson = join(SRC_DIR, slug, "agent.json")
-  const srcMd = join(SRC_DIR, slug, "agent.md")
+async function portAgent(slug: string, dryRun: boolean, srcDir: string): Promise<void> {
+  const srcJson = join(srcDir, slug, "agent.json")
+  const srcMd = join(srcDir, slug, "agent.md")
   if (!existsSync(srcJson)) throw new Error(`missing: ${srcJson}`)
   if (!existsSync(srcMd)) throw new Error(`missing: ${srcMd}`)
 
@@ -146,13 +145,18 @@ async function portAgent(slug: string, dryRun: boolean): Promise<void> {
   console.log(`[port-agent] wrote ${target} (${out.split("\n").length} lines)`)
 }
 
-const [slug, ...flags] = process.argv.slice(2)
-if (!slug) {
-  console.error("usage: bun scripts/port-agent.ts <slug> [--dry-run]")
+const argv = process.argv.slice(2)
+const slug = argv.find((a) => !a.startsWith("--"))
+const srcIdx = argv.indexOf("--src")
+const srcArg = srcIdx !== -1 ? argv[srcIdx + 1] : undefined
+
+if (!slug || !srcArg) {
+  console.error("usage: bun scripts/port-agent.ts <slug> --src <source-dir> [--dry-run]")
   process.exit(1)
 }
-const dryRun = flags.includes("--dry-run")
-portAgent(slug, dryRun).catch((err: Error) => {
+const srcDir = resolve(srcArg)
+const dryRun = argv.includes("--dry-run")
+portAgent(slug, dryRun, srcDir).catch((err: Error) => {
   console.error(`[port-agent] ${err.message}`)
   process.exit(1)
 })

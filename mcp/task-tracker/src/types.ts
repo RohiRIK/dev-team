@@ -34,15 +34,6 @@ export const StateSchema = z.object({
 })
 export type State = z.infer<typeof StateSchema>
 
-export const TaskSummarySchema = TaskSchema.pick({
-  id: true,
-  agent: true,
-  title: true,
-  status: true,
-  updatedAt: true,
-})
-export type TaskSummary = z.infer<typeof TaskSummarySchema>
-
 export const emptyState = (): State => ({
   version: 1,
   sessionId: null,

@@ -26,6 +26,5 @@ export async function loadState(): Promise<State> {
 export async function saveState(state: State): Promise<void> {
   const path = statePath()
   await mkdir(dirname(path), { recursive: true })
-  const next: State = { ...state, updatedAt: new Date().toISOString() }
-  await writeAtomic(path, `${JSON.stringify(next, null, 2)}\n`)
+  await writeAtomic(path, `${JSON.stringify(state, null, 2)}\n`)
 }

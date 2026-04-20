@@ -11,8 +11,10 @@ import { ListTasksInput, listTasks } from "./tools/listTasks.ts"
 import { UpdateTaskInput, updateTask } from "./tools/updateTask.ts"
 import { health } from "./tools/health.ts"
 
+const VERSION = "0.1.0"
+
 const server = new Server(
-  { name: "task-tracker", version: "0.1.0" },
+  { name: "task-tracker", version: VERSION },
   { capabilities: { tools: {} } },
 )
 
@@ -84,30 +86,30 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   try {
     switch (name) {
       case "create_task": {
-        const { state: next, result } = createTask(state, args as never)
+        const { state: next, result } = createTask(state, CreateTaskInput.parse(args))
         await saveState(next)
         return { content: [{ type: "text", text: JSON.stringify(result) }] }
       }
       case "list_tasks": {
-        const rows = listTasks(state, args as never)
+        const rows = listTasks(state, ListTasksInput.parse(args))
         return { content: [{ type: "text", text: JSON.stringify(rows) }] }
       }
       case "get_task": {
-        const row = getTask(state, args as never)
+        const row = getTask(state, GetTaskInput.parse(args))
         return { content: [{ type: "text", text: JSON.stringify(row) }] }
       }
       case "update_task": {
-        const { state: next, result } = updateTask(state, args as never)
+        const { state: next, result } = updateTask(state, UpdateTaskInput.parse(args))
         await saveState(next)
         return { content: [{ type: "text", text: JSON.stringify(result) }] }
       }
       case "complete_task": {
-        const { state: next, result } = completeTask(state, args as never)
+        const { state: next, result } = completeTask(state, CompleteTaskInput.parse(args))
         await saveState(next)
         return { content: [{ type: "text", text: JSON.stringify(result) }] }
       }
       case "health": {
-        const result = health(state)
+        const result = health(state, VERSION)
         return { content: [{ type: "text", text: JSON.stringify(result) }] }
       }
       default:
