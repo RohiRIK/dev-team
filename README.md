@@ -1,135 +1,148 @@
-# Dev Team - Multi-Agent AI System
+# dev-team
 
-A complete multi-agent AI system with **Buddy** as the main orchestrator, managing 29+ specialized agents through an advanced coordination and execution architecture.
+A Claude Code plugin that turns a single chat into a small multi-agent dev team. One slash command — `/buddy` — parses your request, plans a chain of tasks on the built-in `task-tracker` MCP, and dispatches the right specialist subagent for each step. State persists to your workspace as plain JSON.
 
-## Architecture
+14 specialist agents. One orchestrator command. One MCP server. No external services.
 
-The system's architecture is centered around Buddy, the orchestrator, which manages various specialized agents through two key Model Context Protocol (MCP) servers: the Context Hub for task coordination and shared context, and the Execution Hub for dynamic agent preparation and execution. This setup allows for flexible and scalable multi-agent workflows.
+## Status
 
-```
-┌──────────────────────────────────────────────┐
-│           Buddy (Orchestrator)               │
-│  - Coordinates all agents                    │
-│  - Routes tasks                              │
-│  - Manages workflows                         │
-└────────┬────────────────────────┬────────────┘
-         │                        │
-         ▼                        ▼
-┌────────────────┐      ┌────────────────────┐
-│ Context Hub    │      │ Execution Hub      │
-│                │      │                    │
-│ • Tasks        │◄────►│ • Prepare agents   │
-│ • Context      │      │ • Load configs     │
-│ • Events       │      │ • Agent-loader     │
-└────────────────┘      └────────────────────┘
-         │                        │
-         └────────┬───────────────┘
-                  │
-         ┌────────┴────────┐
-         │                 │
-         ▼                 ▼
-    [29+ Agents]      [Results]
+**v0.1.0 — preview.** Ships the 14 canonical agents, `/buddy` orchestrator, `task-tracker` MCP, and the `create-agent` skill. Not yet on the public marketplace. Install from source or a private marketplace repo.
+
+## Install
+
+### From a Claude Code plugin marketplace
+
+```bash
+# once the plugin is published:
+claude plugin install dev-team
 ```
 
+### From source (current method)
 
+```bash
+git clone https://github.com/rohirikman/dev-team.git
+cd dev-team
+bun install
+# then in your Claude Code session:
+claude --plugin-dir .
+```
 
-## Getting Started
+The plugin self-registers. `/buddy` appears in your slash-command list. `/mcp` lists `task-tracker` once the workspace has at least one dispatched task.
 
-### Prerequisites
+<!-- BEGIN: gen-prereqs -->
 
-*   [Bun](https://bun.sh/) - JavaScript/TypeScript runtime
-*   [Node.js](https://nodejs.org/) - For some MCP servers
-*   [Python](https://www.python.org/) & [uv](https://github.com/astral-sh/uv) - For Python tools
-*   [Homebrew](https://brew.sh/) - Package manager (macOS/Linux)
+## Prerequisites
 
-### Installation
+Agents are Bash-enabled but do not install CLIs themselves. Install the ones the agents you use actually need — no global install required for the plugin itself.
 
-1. **Clone the repository:**
-   ```bash
-   git clone <your-repo-url>
-   cd dev-team
-   ```
+### Per-agent CLIs
 
-2. **Install MCP server dependencies:**
-   ```bash
-   # Agent Context Hub
-   cd .gemini/mcp/agent-context-hub
-   bun install
-   
-   # Agent Execution Hub
-   cd ../agent-execution-hub
-   bun install
-   
-   # Agent Loader
-   cd ../agent-loader
-   bun install
-   ```
+| Agent | CLIs |
+|---|---|
+| `backend-developer` | `bun`, `bunx`, `uv`, `uvx`, `curl`, `jq` |
+| `frontend-developer` | `bun`, `bunx`, `vite`, `playwright` |
+| `database-admin` | `psql`, `sqlite3`, `drizzle-kit / prisma` |
+| `devops-engineer` | `docker`, `docker-compose`, `kubectl`, `helm`, `gh` |
+| `cloud-architect` | `terraform`, `aws`, `gcloud`, `az` |
+| `qa-tester` | `playwright`, `vitest`, `bun test`, `pytest` |
+| `security-analyst` | `bunx varlock`, `trivy`, `semgrep`, `gitleaks` |
+| `pentaster` | `nmap`, `nikto`, `ffuf` *(authorised testing only)* |
+| `ml-engineer` | `uv`, `python`, `jupyter` |
+| `ui-ux-designer` | *no Bash — no CLI deps* |
+| `github-manager` | `gh`, `git` |
+| `product-manager` | *no Bash — no CLI deps* |
+| `agent-builder` | `bun`, `bunx` |
+| `system-architect` | *no Bash — no CLI deps* |
 
+### Package-manager preferences
 
+- **Node ecosystem** → `bun` / `bunx` (never `npm`, `npx`, `yarn`, `pnpm`).
+- **Python ecosystem** → `uv` / `uvx` (never `pip`, `pipx`, `poetry`).
+- **JSON reading** → `jq` (never `python3 -c 'import json...'`).
+
+_This section is generated by `scripts/gen-prereqs.ts`. Edit the script's `PER_AGENT_CLIS` table and re-run to update._
+
+<!-- END: gen-prereqs -->
 
 ## Usage
 
-### Using Buddy Directly
+All entry points go through `/buddy`:
 
-Buddy is your main interface. Simply ask Buddy to:
-- Execute any agent: "Use github-manager to list my repos"
-- Coordinate multiple agents: "Have security-scanner check the repo, then github-manager commit fixes"
-- Run workflows: "Execute the code-review workflow"
-
-### Using Agent Context Hub
-
-For complex multi-agent coordination:
-
-```javascript
-// Create a task
-create_agent_task("github-manager", "Update all READMEs")
-
-// Execute with coordination
-execute_agent("github-manager", "...", { mcpContext: { taskId: "task_123" }})
-
-// Track progress
-get_task_status("task_123")
+```
+/buddy add a /health endpoint
+/buddy ship market-resolution notifications per the PRD
+/buddy investigate why /users/me is slow
+/buddy scaffold a new data-catalog agent
 ```
 
-```python
-# Create a task
-default_api.create_agent_task(agentName="github-manager", task="Update all READMEs", sessionId="my-session")
+`/buddy` decides whether your request is single-agent (one task) or a multi-step DAG (e.g. PRD → design → impl × 3 → tests → security → PR), creates the tasks, and dispatches the agents. Every agent reports progress via the `task-tracker` MCP so you can follow along.
 
-# Execute with coordination
-default_api.execute_agent(agentName="github-manager", task="...", mcpContext={"taskId": "task_123"})
+Full routing matrix and three worked examples: `commands/buddy.md`.
 
-# Track progress
-default_api.get_task_status(sessionId="my-session", taskId="task_123")
+## Agents
+
+14 specialists, each with a scoped tool allowlist (default-deny, per spec §5.4):
+
+| Agent | Role | Tool shape |
+|---|---|---|
+| `product-manager` | PRDs, user stories, roadmaps, prioritisation | Design-only (no Bash/Edit) |
+| `system-architect` | C4 diagrams, ADRs, service decomposition | Design-only |
+| `cloud-architect` | Topology, IaC plans, cost modeling | Design-only |
+| `backend-developer` | APIs, service code, background jobs | Full-stack |
+| `frontend-developer` | React/Next components, pages, client state | Full-stack |
+| `database-admin` | Schemas, migrations, index strategy, tuning | Full-stack |
+| `devops-engineer` | CI/CD, IaC execute, containers, K8s | Full-stack |
+| `ml-engineer` | Model training, evaluation, serving | Full-stack |
+| `ui-ux-designer` | Flows, wireframes, design tokens, a11y | Static design (no Bash) |
+| `qa-tester` | E2E, integration, regression, flake triage | Edit-only (no Write) |
+| `security-analyst` | Defensive review, threat modelling, audits | Review-only (no Write/Edit) |
+| `pentaster` | Authorised offensive PoCs, minimal exploits | Review-only (no Write/Edit) |
+| `github-manager` | Commits, branches, PRs, releases, gh CLI | CLI-only (no Write/Edit) |
+| `agent-builder` | Scaffold / port / validate subagents via the `create-agent` skill | Full-stack |
+
+Each agent body follows a canonical 7-section shape (Role, When to use, When NOT to use, Workflow, Tools, Constraints, Worked example) and is capped at 200 lines. See `agents/<slug>.md`.
+
+## Skills
+
+Plugin-shipped skills (in `skills/`). Agents invoke these via the built-in `Skill` tool:
+
+| Skill | Primary callers |
+|---|---|
+| `create-agent` | `agent-builder` — full lifecycle of a dev-team agent (create / port / research / validate / update) |
+
+Additional skills (`CodingStandards`, `TddWorkflow`, `SecurityReview`, `BackendDesign`, `FrontendDesign`, `CreateSkill`) ship in subsequent minor versions — see `specs/plugin-pivot.md` §5.8.
+
+## State
+
+Task state lives at `${CLAUDE_PROJECT_DIR}/.dev-team/tasks.json`. One JSON file per workspace. The `task-tracker` MCP reads and writes atomically (`fs.rename`-based, with a cross-device fallback for network / cloud-synced filesystems). No database server, no cloud call.
+
+Gitignore the directory if you don't want to version-control your task history:
+
+```
+# .gitignore
+.dev-team/
 ```
 
-### Using Agent Execution Hub
+## Limitations (v0.1)
 
-To prepare and execute agents:
+- **Single session per workspace.** Concurrent `/buddy` runs in the same workspace can race; keep it to one at a time until multi-session is added.
+- **Routing is keyword-based**, not model-driven. Weak matches are flagged as low-confidence in `/buddy`'s output. Feedback on bad routing is captured in `state/routing-feedback.jsonl` for future iteration.
+- **No built-in observability UI.** Inspect task state by reading `.dev-team/tasks.json` directly, or ask `/buddy` for a status summary.
+- **Only task-tracker MCP ships.** Agents can use any user-registered MCPs, but the plugin itself depends only on the bundled server.
 
-```javascript
-// Load agent configuration
-get_agent_config("github-manager")
+## Development
 
-// Execute agent (returns config for agent-loader)
-execute_agent("github-manager", "Say hello")
+```bash
+bun install                              # dependencies
+bun scripts/verify-agents.ts             # lint agents (strict — fails on TODO markers)
+bun scripts/verify-agents.ts --skills    # lint skills
+bun test                                 # run task-tracker MCP tests
+bun scripts/gen-prereqs.ts               # regenerate Prerequisites block
+bun scripts/gen-prereqs.ts --check       # fail CI if README block drifted
 ```
 
-```python
-# Load agent configuration
-default_api.get_agent_config(agentName="github-manager")
+Full plan: `plans/plugin-pivot.md`. Spec: `specs/plugin-pivot.md`. Canonical agent shape: `skills/create-agent/references/agent-structure.md`.
 
-# Execute agent (returns config for agent-loader)
-default_api.execute_agent(agentName="github-manager", task="Say hello")
-```
+## License
 
-## MCP Servers & Agents
-
-This system leverages several Model Context Protocol (MCP) servers for agent coordination and execution, and includes 26 specialized agents. For detailed information on each MCP server and agent, please refer to their respective directories within `.gemini/mcp/` and `.gemini/agents/`.
-
-## Contributing
-
-Please see the [CONTRIBUTING.md](/.github/CONTRIBUTING.md) file for details on how to contribute to this project.
-
-## Code of Conduct
-
-Please see the [CODE_OF_CONDUCT.md](/.github/CODE_OF_CONDUCT.md) file for details on our code of conduct.
+MIT — see `LICENSE`.

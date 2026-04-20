@@ -1,19 +1,24 @@
 #!/usr/bin/env bun
 /**
- * verify-agents.ts — lint every agents/*.md against spec §5.6 + §5.4.
+ * verify-agents.ts — lint agents/*.md (default) or skills/SKILL.md (--skills).
  *
- * Checks (per file):
+ * Agents mode (default) — checks per agents/*.md:
  *   1. YAML frontmatter present with: name, description, tools
- *   2. Canonical 7 sections present: Role, When to use, When NOT to use,
- *      Workflow, Tools, Constraints, Worked example
- *   3. Body length ≤ 200 lines (from line after closing `---`)
- *   4. No absolute home paths (macOS, Linux, Windows User dirs)
- *   5. No TODO(author) markers (allowed during T-15 draft, fail after T-17)
+ *   2. Canonical 7 sections present
+ *   3. Body length ≤ 200 lines
+ *   4. No absolute home paths
+ *   5. No TODO(author) markers (use --allow-todo during drafting)
+ *
+ * Skills mode (--skills) — checks per skills/<name>/SKILL.md:
+ *   1. YAML frontmatter present with: name, description (no `tools` required)
+ *   2. No absolute home paths
+ *   (No 7-section rule, no body line cap, no TODO check.)
  *
  * Usage:
- *   bun scripts/verify-agents.ts            # lint all agents/*.md
- *   bun scripts/verify-agents.ts <slug>     # lint one
- *   bun scripts/verify-agents.ts --allow-todo  # pass even with TODOs (pilot)
+ *   bun scripts/verify-agents.ts                  # lint all agents/*.md
+ *   bun scripts/verify-agents.ts <slug>           # lint one agent
+ *   bun scripts/verify-agents.ts --allow-todo     # tolerate TODOs (pilot)
+ *   bun scripts/verify-agents.ts --skills         # lint skills/**\/SKILL.md
  *
  * Exit: 0 on pass, 1 on any failure.
  */
@@ -22,8 +27,10 @@ import { join, resolve } from "node:path"
 
 const ROOT = resolve(import.meta.dir, "..")
 const AGENTS_DIR = join(ROOT, "agents")
+const SKILLS_DIR = join(ROOT, "skills")
 
-const REQUIRED_FRONTMATTER = ["name", "description", "tools"] as const
+const REQUIRED_FRONTMATTER_AGENT = ["name", "description", "tools"] as const
+const REQUIRED_FRONTMATTER_SKILL = ["name", "description"] as const
 const REQUIRED_SECTIONS = [
   "Role",
   "When to use",
@@ -39,6 +46,16 @@ const RESIDUE_PATTERNS: { pattern: RegExp; label: string }[] = [
   { pattern: /\/h[o]me\/[a-z]/, label: "absolute Linux home path" },
   { pattern: /C:\\U[s]ers\\/i, label: "absolute Windows home path" },
 ]
+
+const SECTION_REGEXES = REQUIRED_SECTIONS.map((section) => ({
+  section,
+  re: new RegExp(
+    `^##\\s+${section.replace(/\(/g, "\\(").replace(/\)/g, "\\)")}\\b`,
+    "m",
+  ),
+}))
+
+const TODO_AUTHOR = /TODO\(author\)/
 
 type Finding = { file: string; issue: string }
 
@@ -58,7 +75,12 @@ function parseYamlKeys(yaml: string): Set<string> {
   return keys
 }
 
-function lintFile(file: string, raw: string, allowTodo: boolean): Finding[] {
+function lintFile(
+  file: string,
+  raw: string,
+  allowTodo: boolean,
+  mode: "agent" | "skill",
+): Finding[] {
   const findings: Finding[] = []
   const push = (issue: string): number => findings.push({ file, issue })
 
@@ -68,64 +90,90 @@ function lintFile(file: string, raw: string, allowTodo: boolean): Finding[] {
     return findings
   }
 
+  const required =
+    mode === "agent" ? REQUIRED_FRONTMATTER_AGENT : REQUIRED_FRONTMATTER_SKILL
   const keys = parseYamlKeys(parts.yaml)
-  for (const k of REQUIRED_FRONTMATTER) {
+  for (const k of required) {
     if (!keys.has(k)) push(`frontmatter missing key: ${k}`)
   }
 
-  for (const section of REQUIRED_SECTIONS) {
-    const re = new RegExp(`^##\\s+${section.replace(/\(/g, "\\(").replace(/\)/g, "\\)")}\\b`, "m")
-    if (!re.test(parts.body)) push(`missing section: ## ${section}`)
-  }
+  if (mode === "agent") {
+    for (const { section, re } of SECTION_REGEXES) {
+      if (!re.test(parts.body)) push(`missing section: ## ${section}`)
+    }
 
-  const bodyLines = parts.body.split("\n").length
-  if (bodyLines > 200) push(`body too long: ${bodyLines} lines (max 200)`)
+    const bodyLines = parts.body.split("\n").length
+    if (bodyLines > 200) push(`body too long: ${bodyLines} lines (max 200)`)
+
+    if (!allowTodo && TODO_AUTHOR.test(raw)) {
+      push("unresolved TODO(author) marker")
+    }
+  }
 
   for (const { pattern, label } of RESIDUE_PATTERNS) {
     if (pattern.test(raw)) push(`residue found — ${label}`)
   }
 
-  if (!allowTodo && /TODO\(author\)/.test(raw)) {
-    push("unresolved TODO(author) marker (finish T-17 before verify)")
-  }
-
   return findings
+}
+
+async function discoverSkillFiles(): Promise<{ rel: string; abs: string }[]> {
+  const entries = await readdir(SKILLS_DIR).catch(() => [] as string[])
+  return entries.map((dir) => ({
+    rel: `${dir}/SKILL.md`,
+    abs: join(SKILLS_DIR, dir, "SKILL.md"),
+  }))
 }
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2)
   const allowTodo = args.includes("--allow-todo")
+  const skillsMode = args.includes("--skills")
   const slugs = args.filter((a) => !a.startsWith("--"))
 
-  const files = slugs.length
-    ? slugs.map((s) => `${s}.md`)
-    : (await readdir(AGENTS_DIR).catch(() => [])).filter((f) => f.endsWith(".md"))
+  type Target = { display: string; abs: string }
+  let targets: Target[] = []
 
-  if (files.length === 0) {
-    console.log("[verify-agents] no agents to lint")
+  if (skillsMode) {
+    const files = await discoverSkillFiles()
+    targets = files.map((f) => ({ display: f.rel, abs: f.abs }))
+  } else {
+    const names = slugs.length
+      ? slugs.map((s) => `${s}.md`)
+      : (await readdir(AGENTS_DIR).catch(() => [])).filter((f) => f.endsWith(".md"))
+    targets = names.map((n) => ({ display: n, abs: join(AGENTS_DIR, n) }))
+  }
+
+  if (targets.length === 0) {
+    console.log(`[verify-agents] no ${skillsMode ? "skills" : "agents"} to lint`)
     return
   }
 
+  const mode: "agent" | "skill" = skillsMode ? "skill" : "agent"
+  const raws = await Promise.all(
+    targets.map((t) => readFile(t.abs, "utf8").catch(() => "")),
+  )
   const allFindings: Finding[] = []
-  for (const f of files) {
-    const path = join(AGENTS_DIR, f)
-    const raw = await readFile(path, "utf8").catch(() => "")
+  targets.forEach((t, i) => {
+    const raw = raws[i]
     if (!raw) {
-      allFindings.push({ file: f, issue: "file not found or empty" })
-      continue
+      allFindings.push({ file: t.display, issue: "file not found or empty" })
+      return
     }
-    allFindings.push(...lintFile(f, raw, allowTodo))
-  }
+    allFindings.push(...lintFile(t.display, raw, allowTodo, mode))
+  })
 
   if (allFindings.length === 0) {
-    console.log(`[verify-agents] ✔ ${files.length} file(s) passed`)
+    console.log(`[verify-agents] ✔ ${targets.length} ${mode} file(s) passed`)
     return
   }
 
   for (const { file, issue } of allFindings) {
     console.error(`[verify-agents] ✘ ${file}: ${issue}`)
   }
-  console.error(`[verify-agents] ${allFindings.length} issue(s) across ${files.length} file(s)`)
+  console.error(
+    `[verify-agents] ${allFindings.length} issue(s) across ${targets.length} file(s)`,
+  )
   process.exit(1)
 }
 
