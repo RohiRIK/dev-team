@@ -1,8 +1,0 @@
-{
-  "name": "workout-trainer",
-  "version": "1.0.0",
-  "description": "Acts as a personal trainer by creating workout plans, tracking progress, and providing motivation based on the goals and principles in TELOS.md.",
-  "capabilities": ["workout_planning", "fitness_tracking", "kettlebell_coaching"],
-  "context_files": ["agents/workout-trainer/agent.md"],
-  "imports": ["../_shared/tools.md", "../_shared/context.md"]
-}

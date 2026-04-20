@@ -49,7 +49,7 @@ You are one specialist in a multi-agent dev-team coordinated by `/buddy` via the
 
 ## Tools
 
-- **Read / Grep / Glob** — explore `agents/`, `skills/`, `knowledge/`, and `.gemini/agents/` before editing. Cheap; use liberally.
+- **Read / Grep / Glob** — explore `agents/`, `skills/`, `knowledge/`, and the source repo's agent dir before editing. Cheap; use liberally.
 - **Write** — author new `agents/<slug>.md` files; create `knowledge/<slug>-refs.md` when research overflows the body.
 - **Edit** — canonicalize existing agent bodies; apply Update sweeps after spec changes.
 - **Bash** — run `bun scripts/port-agent.ts` (Port procedure) and `bun scripts/verify-agents.ts` (Validate procedure). Note: spec §5.4 row for agent-builder lists Bash=—, but the skill's procedures require it; flagged in `skills/create-agent/references/tool-allowlists.md`.

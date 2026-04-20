@@ -1,6 +1,0 @@
-{
-  "name": "Burp Suite Guide",
-  "description": "A comprehensive toolkit for professional penetration testers, used to uncover complex vulnerabilities in modern web applications. Key components include a proxy for traffic interception, active and passive scanners, and modules like Repeater and Intruder for manipulating requests.",
-  "usage": "Intercepting and modifying HTTP/S traffic, scanning for vulnerabilities, fuzzing requests, and more.",
-  "type": "proxy_and_scanner"
-}
