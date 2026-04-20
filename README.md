@@ -6,28 +6,28 @@ A Claude Code plugin that turns a single chat into a small multi-agent dev team.
 
 ## Status
 
-**v0.1.0 — preview.** Ships the 14 canonical agents, `/buddy` orchestrator, `task-tracker` MCP, and the `create-agent` skill. Not yet on the public marketplace. Install from source or a private marketplace repo.
+**v0.1.0 — preview.** Ships the 14 canonical agents, `/buddy` orchestrator, `task-tracker` MCP, and the `create-agent` skill. Install via `claude plugin marketplace add RohiRIK/dev-team` (see below).
 
 ## Install
 
-### From a Claude Code plugin marketplace
-
 ```bash
-# once the plugin is published:
+# 1. Add this repo as a marketplace (one-time per machine)
+claude plugin marketplace add RohiRIK/dev-team
+
+# 2. Install the plugin
 claude plugin install dev-team
 ```
 
-### From source (current method)
+`/buddy` appears in your slash-command list immediately. `/mcp` lists `task-tracker` once the workspace has at least one dispatched task.
+
+### From source
 
 ```bash
-git clone https://github.com/rohirikman/dev-team.git
+git clone https://github.com/RohiRIK/dev-team.git
 cd dev-team
 bun install
-# then in your Claude Code session:
 claude --plugin-dir .
 ```
-
-The plugin self-registers. `/buddy` appears in your slash-command list. `/mcp` lists `task-tracker` once the workspace has at least one dispatched task.
 
 <!-- BEGIN: gen-prereqs -->
 
