@@ -7,6 +7,15 @@ Versions follow [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.2.1] — 2026-04-21
+
+Discoverability hotfix — the marketplace entry and `/buddy` command now match the runtime shape Claude Code expects.
+
+### Fixed
+
+- **`marketplace.json` — non-canonical `source` shape** blocked update detection. Changed from `{source: "github", repo: ..., ref: "main"}` to `"source": "./"` (scalar) to match the schema used by working plugins (`ltm`, `context-mode`). Users stuck on v0.1.0 will now see v0.2.1 after `/plugin marketplace update rohirikman`.
+- **`commands/buddy.md` `allowed-tools` referenced unprefixed MCP names** (`mcp__task-tracker__*`). When the plugin loads, Claude Code namespaces the tools as `mcp__plugin_dev-team_task-tracker__*`. `/buddy` now uses the prefixed names so it can actually call `create_task`, `list_tasks`, `get_task`, and `update_task`.
+
 ## [0.2.0] — 2026-04-21
 
 Second preview release — quality-of-life gates around dispatch and state.
@@ -48,5 +57,6 @@ First public preview release.
 - `git filter-repo` history scrub — rotated Context7 key removed from all blobs and binaries before publish.
 - Retired Gemini-CLI infra: Rust launcher, 5 legacy MCPs, knowledge bootloaders.
 
+[0.2.1]: https://github.com/rohirikman/dev-team/releases/tag/v0.2.1
 [0.2.0]: https://github.com/rohirikman/dev-team/releases/tag/v0.2.0
 [0.1.0]: https://github.com/rohirikman/dev-team/releases/tag/v0.1.0

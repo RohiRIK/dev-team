@@ -1,7 +1,7 @@
 ---
 description: "Orchestrate the dev-team. Parses the user's request, plans a single-agent or multi-step DAG of tasks on the task-tracker MCP, and dispatches the right subagents. Primary surface for the dev-team plugin."
 argument-hint: "<what you want done, in plain English>"
-allowed-tools: Task, mcp__task-tracker__create_task, mcp__task-tracker__list_tasks, mcp__task-tracker__get_task, mcp__task-tracker__update_task, Read, Grep, Glob
+allowed-tools: Task, mcp__plugin_dev-team_task-tracker__create_task, mcp__plugin_dev-team_task-tracker__list_tasks, mcp__plugin_dev-team_task-tracker__get_task, mcp__plugin_dev-team_task-tracker__update_task, Read, Grep, Glob
 ---
 
 # /buddy — dev-team orchestrator

@@ -21,7 +21,7 @@ That's it. `/buddy` plans the work, spins up the right agents, and tracks progre
 
 ## Status
 
-**v0.2.0 — preview.** Adds auto-gitignore of `.dev-team/` on first write and a preview-and-approve gate in `/buddy` so no agent runs before you approve the plan. Install via `claude plugin marketplace add RohiRIK/dev-team` (see below).
+**v0.2.1 — preview.** Fixes marketplace discoverability (non-canonical `source` shape) and `/buddy`'s MCP tool names (now correctly namespaced). Also in 0.2.x: auto-gitignore of `.dev-team/` on first write and a preview-and-approve gate in `/buddy`. Install via `claude plugin marketplace add RohiRIK/dev-team` (see below).
 
 ## Install
 
