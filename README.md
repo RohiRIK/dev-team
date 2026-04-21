@@ -1,41 +1,46 @@
 # dev-team
 
-A Claude Code plugin that turns a single chat into a small multi-agent dev team. One slash command — `/buddy` — parses your request, plans a chain of tasks on the built-in `task-tracker` MCP, and dispatches the right specialist subagent for each step. State persists to your workspace as plain JSON.
+A Claude Code plugin that turns one chat into a 14-agent dev team. One slash command — `/buddy` — parses your request, previews a plan, and dispatches specialist subagents (product, design, build, review, ship) through a built-in `task-tracker` MCP. State lives in `.dev-team/tasks.json` in your repo. No database, no cloud, no external services.
 
-14 specialist agents. One orchestrator command. One MCP server. No external services.
+**Status:** v0.2.1 preview. Fixes marketplace discoverability and namespaces the `task-tracker` MCP tool names so `/buddy` can actually reach them. Also in 0.2.x: plan-preview-and-approve gate in `/buddy`, auto-gitignore of `.dev-team/`, and the 14-agent lineup below.
 
-## Quick start
+## Why / why not
+
+**Use this when** you want to keep a single feature or bug in one chat but still get separation between product, design, implementation, QA, security, and the PR. `/buddy` does the routing; you stay in one thread and review a plan before anything runs.
+
+**Skip this when** you already have a project-management system you trust, you're doing a one-liner that doesn't need a multi-step DAG, or you need observability beyond a JSON file on disk. There is no dashboard, no queue, no remote runner — just subagents, one MCP, and a file.
+
+## Quickstart
 
 ```bash
-# 1. Add the marketplace and install (one-time)
+# 1. Add the marketplace and install (one-time per machine)
 claude plugin marketplace add RohiRIK/dev-team
 claude plugin install dev-team
 
-# 2. Open any project in Claude Code and run your first task
-/buddy add a /health endpoint to the API
+# 2. Open any project in Claude Code
+/buddy add a /health endpoint that returns {status:"ok"}
 ```
 
-That's it. `/buddy` plans the work, spins up the right agents, and tracks progress in `.dev-team/tasks.json`.
+Expected output — `/buddy` renders a plan table and waits for approval:
 
----
+```
+Planned dispatch for: "add a /health endpoint that returns {status:'ok'}"
 
-## Status
+| # | Agent              | Task                                       | Depends on |
+|---|--------------------|--------------------------------------------|------------|
+| 1 | backend-developer  | Add GET /health returning {status:'ok'}    | —          |
+| 2 | qa-tester          | Regression test for /health                | 1          |
+| 3 | github-manager     | Commit + PR /health                        | 2          |
 
-**v0.2.1 — preview.** Fixes marketplace discoverability (non-canonical `source` shape) and `/buddy`'s MCP tool names (now correctly namespaced). Also in 0.2.x: auto-gitignore of `.dev-team/` on first write and a preview-and-approve gate in `/buddy`. Install via `claude plugin marketplace add RohiRIK/dev-team` (see below).
+Routing confidence: high — clear backend endpoint signal.
+Security gate: not needed — no auth / input / secret / external-data surface.
 
-## Install
-
-```bash
-# 1. Add this repo as a marketplace (one-time per machine)
-claude plugin marketplace add RohiRIK/dev-team
-
-# 2. Install the plugin
-claude plugin install dev-team
+Reply "go" to dispatch, or describe changes (swap agents, drop steps, reorder).
 ```
 
-`/buddy` appears in your slash-command list immediately. `/mcp` lists `task-tracker` once the workspace has at least one dispatched task.
+Reply `go` and `/buddy` creates the tasks, dispatches the agents, and reports back when every task is in a terminal state. Task state is written to `.dev-team/tasks.json`, which is auto-added to `.gitignore` on first write.
 
-### From source
+### Install from source
 
 ```bash
 git clone https://github.com/RohiRIK/dev-team.git
@@ -43,6 +48,66 @@ cd dev-team
 bun install
 claude --plugin-dir .
 ```
+
+## How `/buddy` works
+
+`/buddy` is an orchestrator, not a worker. Every invocation goes through the same gate:
+
+1. **Parse** the request, decide single-agent vs. multi-step DAG using the routing matrix.
+2. **Preview** the full plan as a table (as shown above) and stop. No task is created yet.
+3. **Approve or revise.** Reply `go` to dispatch. Reply with changes (swap an agent, drop a step, reorder, tighten scope) and `/buddy` re-renders the full plan. Reply `cancel` to abort with no tasks created.
+4. **Dispatch** — `create_task` for each step, then `Task` tool invocations in dependency order. Parallel where deps allow.
+5. **Watch + close out** — every agent reports via the `task-tracker` MCP. When all tasks are terminal, `/buddy` posts a per-agent summary and a routing-confidence line.
+
+Single-agent requests still show a one-row preview and still wait for approval. The full routing matrix, ambiguity tie-breakers, refusal rules, and three worked examples live in [`commands/buddy.md`](commands/buddy.md).
+
+## What's inside — 14 agents, five lifecycle phases
+
+Each agent ships with a scoped tool allowlist (default-deny) and a canonical 7-section body (Role, When to use, When NOT to use, Workflow, Tools, Constraints, Worked example). Full specs in [`agents/<slug>.md`](agents/).
+
+### Define
+
+| Agent | Focus |
+|---|---|
+| [`product-manager`](agents/product-manager.md) | PRDs, user stories, roadmaps, prioritisation — specs only, never code. |
+
+### Design
+
+| Agent | Focus |
+|---|---|
+| [`system-architect`](agents/system-architect.md) | System design, ADRs, C4 diagrams, service decomposition — design-only. |
+| [`cloud-architect`](agents/cloud-architect.md) | Cloud topology, region / zone / network choice, IaC plans, cost and HA / DR models — plans, never executes. |
+| [`ui-ux-designer`](agents/ui-ux-designer.md) | Flows, wireframes, design-system tokens, accessibility audits, Figma handoff — no runnable code. |
+
+### Build
+
+| Agent | Focus |
+|---|---|
+| [`backend-developer`](agents/backend-developer.md) | REST / GraphQL APIs, server-side logic, background jobs, Bun migrations — full implement → test → document loop. |
+| [`frontend-developer`](agents/frontend-developer.md) | React / Next.js components, pages, client state, Tailwind / CSS, component tests. |
+| [`database-admin`](agents/database-admin.md) | Schemas, migrations, index / query tuning, backup / restore, replicas. Owns the data tier. |
+| [`ml-engineer`](agents/ml-engineer.md) | Data pipelines, model training / evaluation / deploy, experiment tracking, production drift monitoring. |
+| [`devops-engineer`](agents/devops-engineer.md) | Executes cloud-architect plans: CI, container builds, Kubernetes, runtime env, deploy debugging. |
+
+### Review
+
+| Agent | Focus |
+|---|---|
+| [`qa-tester`](agents/qa-tester.md) | E2E / integration / regression tests, bug-fix verification, flake triage. Edits tests; never writes prod code. |
+| [`security-analyst`](agents/security-analyst.md) | Defensive review — OWASP, authz, secret / dep scans, threat models, cloud-posture audit. Review-only, hands off every fix. |
+| [`pentester`](agents/pentester.md) | Authorised offensive PoCs — nmap, burp, sqlmap, nuclei. Proves exploitability; hands off every fix. |
+
+### Ship
+
+| Agent | Focus |
+|---|---|
+| [`github-manager`](agents/github-manager.md) | Commits, branches, PRs, issue hygiene, releases, `gh` CLI. Every dev chain terminates here. |
+
+### Meta
+
+| Agent | Focus |
+|---|---|
+| [`agent-builder`](agents/agent-builder.md) | Scaffolds, ports, and validates dev-team subagents via the `create-agent` skill. Use to add or refresh agents. |
 
 <!-- BEGIN: gen-prereqs -->
 
@@ -79,66 +144,58 @@ _This section is generated by `scripts/gen-prereqs.ts`. Edit the script's `PER_A
 
 <!-- END: gen-prereqs -->
 
-## Usage
-
-All entry points go through `/buddy`:
-
-```
-/buddy add a /health endpoint
-/buddy ship market-resolution notifications per the PRD
-/buddy investigate why /users/me is slow
-/buddy scaffold a new data-catalog agent
-```
-
-`/buddy` decides whether your request is single-agent (one task) or a multi-step DAG (e.g. PRD → design → impl × 3 → tests → security → PR), **shows you the plan as a table, waits for your approval**, then creates the tasks and dispatches the agents. Reply `go` to dispatch or describe changes (swap an agent, drop a step, reorder) to revise. Every agent reports progress via the `task-tracker` MCP so you can follow along.
-
-Full routing matrix, plan-preview format, and three worked examples: `commands/buddy.md`.
-
-## Agents
-
-14 specialists, each with a scoped tool allowlist (default-deny, per spec §5.4):
-
-| Agent | Role | Tool shape |
-|---|---|---|
-| `product-manager` | PRDs, user stories, roadmaps, prioritisation | Design-only (no Bash/Edit) |
-| `system-architect` | C4 diagrams, ADRs, service decomposition | Design-only |
-| `cloud-architect` | Topology, IaC plans, cost modeling | Design-only |
-| `backend-developer` | APIs, service code, background jobs | Full-stack |
-| `frontend-developer` | React/Next components, pages, client state | Full-stack |
-| `database-admin` | Schemas, migrations, index strategy, tuning | Full-stack |
-| `devops-engineer` | CI/CD, IaC execute, containers, K8s | Full-stack |
-| `ml-engineer` | Model training, evaluation, serving | Full-stack |
-| `ui-ux-designer` | Flows, wireframes, design tokens, a11y | Static design (no Bash) |
-| `qa-tester` | E2E, integration, regression, flake triage | Edit-only (no Write) |
-| `security-analyst` | Defensive review, threat modelling, audits | Review-only (no Write/Edit) |
-| `pentester` | Authorised offensive PoCs, minimal exploits | Review-only (no Write/Edit) |
-| `github-manager` | Commits, branches, PRs, releases, gh CLI | CLI-only (no Write/Edit) |
-| `agent-builder` | Scaffold / port / validate subagents via the `create-agent` skill | Full-stack |
-
-Each agent body follows a canonical 7-section shape (Role, When to use, When NOT to use, Workflow, Tools, Constraints, Worked example) and is capped at 200 lines. See `agents/<slug>.md`.
-
-## Skills
-
-Plugin-shipped skills (in `skills/`). Agents invoke these via the built-in `Skill` tool:
-
-| Skill | Primary callers |
-|---|---|
-| `create-agent` | `agent-builder` — full lifecycle of a dev-team agent (create / port / research / validate / update) |
-
-Additional skills (`CodingStandards`, `TddWorkflow`, `SecurityReview`, `BackendDesign`, `FrontendDesign`, `CreateSkill`) ship in subsequent minor versions.
-
 ## State
 
-Task state lives at `${CLAUDE_PROJECT_DIR}/.dev-team/tasks.json`. One JSON file per workspace. The `task-tracker` MCP reads and writes atomically (`fs.rename`-based, with a cross-device fallback for network / cloud-synced filesystems). No database server, no cloud call.
+Task state lives at `${CLAUDE_PROJECT_DIR}/.dev-team/tasks.json` — one JSON file per workspace. The `task-tracker` MCP reads and writes atomically (`fs.rename` with a cross-device fallback for network / cloud-synced filesystems). No database server, no cloud call.
 
-The MCP automatically adds `.dev-team/` to your repo's `.gitignore` on first task save — idempotent, silent, and only when the workspace is inside a git repo. Outside a git repo (e.g. `/tmp`), nothing is written to `.gitignore` and the task state still persists normally.
+On first task save, the MCP adds `.dev-team/` to the repo's `.gitignore` — idempotent and silent, only when the workspace is inside a git repo. Outside a git repo (e.g. `/tmp`), nothing is written to `.gitignore` and state still persists normally.
 
-## Limitations (v0.1)
+## Troubleshooting
 
-- **Single session per workspace.** Concurrent `/buddy` runs in the same workspace can race; keep it to one at a time until multi-session is added.
-- **Routing is keyword-based**, not model-driven. Weak matches are flagged as low-confidence in `/buddy`'s output. Feedback on bad routing is captured in `state/routing-feedback.jsonl` for future iteration.
-- **No built-in observability UI.** Inspect task state by reading `.dev-team/tasks.json` directly, or ask `/buddy` for a status summary.
-- **Only task-tracker MCP ships.** Agents can use any user-registered MCPs, but the plugin itself depends only on the bundled server.
+### `/buddy` doesn't appear in the slash-command list
+
+The plugin registered but commands aren't visible yet. In Claude Code, run:
+
+```
+/reload-plugins
+```
+
+Then type `/` — `/buddy` should appear. If it still doesn't, confirm the install with `/plugin list` and reinstall: `claude plugin uninstall dev-team && claude plugin install dev-team`.
+
+### `/plugin update` hangs or returns "already up to date" but you're still on an older version
+
+Versions older than 0.2.1 shipped a non-canonical `source` field in the marketplace manifest that prevented `/plugin update` from resolving. Fix:
+
+```bash
+claude plugin marketplace remove RohiRIK/dev-team
+claude plugin marketplace add RohiRIK/dev-team
+claude plugin install dev-team
+```
+
+This re-hydrates the marketplace entry against 0.2.1+ and future `/plugin update` calls will work normally.
+
+### Uninstall
+
+```bash
+claude plugin uninstall dev-team
+claude plugin marketplace remove RohiRIK/dev-team   # optional — removes the marketplace registration too
+```
+
+Task state in `.dev-team/tasks.json` is per-workspace and not touched by uninstall. Delete it manually if you want a clean slate.
+
+## Docs
+
+- [`docs/architecture.md`](docs/architecture.md) — how `/buddy`, the `task-tracker` MCP, and the agents wire together.
+- [`docs/agents.md`](docs/agents.md) — full agent specs, tool allowlists, and the canonical 7-section shape.
+- [`docs/task-tracker.md`](docs/task-tracker.md) — MCP tool reference (`create_task`, `update_task`, `complete_task`, `list_tasks`, `get_task`).
+- [`docs/development.md`](docs/development.md) — local dev, verify scripts, release process.
+
+## Limitations (v0.2.x)
+
+- **Single session per workspace.** Concurrent `/buddy` runs in the same workspace can race; keep it to one at a time.
+- **Routing is keyword-based**, not model-driven. Weak matches are flagged as low-confidence in the plan preview; feedback is captured in `state/routing-feedback.jsonl`.
+- **No built-in observability UI.** Read `.dev-team/tasks.json` directly, or ask `/buddy` for a status summary.
+- **Only the `task-tracker` MCP ships.** Agents can use any user-registered MCPs, but the plugin itself depends on just the bundled server.
 
 ## Development
 
@@ -147,12 +204,12 @@ bun install                              # dependencies
 bun scripts/verify-agents.ts             # lint agents (strict — fails on TODO markers)
 bun scripts/verify-agents.ts --skills    # lint skills
 bun test                                 # run task-tracker MCP tests
-bun scripts/gen-prereqs.ts               # regenerate Prerequisites block
-bun scripts/gen-prereqs.ts --check       # fail CI if README block drifted
+bun scripts/gen-prereqs.ts               # regenerate the Prerequisites block
+bun scripts/gen-prereqs.ts --check       # fail CI if the README block drifted
 ```
 
-Canonical agent shape: `skills/create-agent/references/agent-structure.md`.
+Canonical agent shape: [`skills/create-agent/references/agent-structure.md`](skills/create-agent/references/agent-structure.md).
 
 ## License
 
-MIT — see `LICENSE`.
+MIT — see [`LICENSE`](LICENSE).
