@@ -21,7 +21,7 @@ That's it. `/buddy` plans the work, spins up the right agents, and tracks progre
 
 ## Status
 
-**v0.1.0 — preview.** Ships the 14 canonical agents, `/buddy` orchestrator, `task-tracker` MCP, and the `create-agent` skill. Install via `claude plugin marketplace add RohiRIK/dev-team` (see below).
+**v0.2.0 — preview.** Adds auto-gitignore of `.dev-team/` on first write and a preview-and-approve gate in `/buddy` so no agent runs before you approve the plan. Install via `claude plugin marketplace add RohiRIK/dev-team` (see below).
 
 ## Install
 
@@ -90,9 +90,9 @@ All entry points go through `/buddy`:
 /buddy scaffold a new data-catalog agent
 ```
 
-`/buddy` decides whether your request is single-agent (one task) or a multi-step DAG (e.g. PRD → design → impl × 3 → tests → security → PR), creates the tasks, and dispatches the agents. Every agent reports progress via the `task-tracker` MCP so you can follow along.
+`/buddy` decides whether your request is single-agent (one task) or a multi-step DAG (e.g. PRD → design → impl × 3 → tests → security → PR), **shows you the plan as a table, waits for your approval**, then creates the tasks and dispatches the agents. Reply `go` to dispatch or describe changes (swap an agent, drop a step, reorder) to revise. Every agent reports progress via the `task-tracker` MCP so you can follow along.
 
-Full routing matrix and three worked examples: `commands/buddy.md`.
+Full routing matrix, plan-preview format, and three worked examples: `commands/buddy.md`.
 
 ## Agents
 
@@ -131,12 +131,7 @@ Additional skills (`CodingStandards`, `TddWorkflow`, `SecurityReview`, `BackendD
 
 Task state lives at `${CLAUDE_PROJECT_DIR}/.dev-team/tasks.json`. One JSON file per workspace. The `task-tracker` MCP reads and writes atomically (`fs.rename`-based, with a cross-device fallback for network / cloud-synced filesystems). No database server, no cloud call.
 
-Gitignore the directory if you don't want to version-control your task history:
-
-```
-# .gitignore
-.dev-team/
-```
+The MCP automatically adds `.dev-team/` to your repo's `.gitignore` on first task save — idempotent, silent, and only when the workspace is inside a git repo. Outside a git repo (e.g. `/tmp`), nothing is written to `.gitignore` and the task state still persists normally.
 
 ## Limitations (v0.1)
 

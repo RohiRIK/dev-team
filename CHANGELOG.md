@@ -7,6 +7,25 @@ Versions follow [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.2.0] — 2026-04-21
+
+Second preview release — quality-of-life gates around dispatch and state.
+
+### Added
+
+- **Auto-gitignore `.dev-team/`** — on first `saveState`, the `task-tracker` MCP walks to the nearest `.git/` ancestor and ensures `.dev-team/` is listed in `.gitignore`. Idempotent, per-project memoized (O(1) after first call), never creates a `.gitignore` outside a repo, swallows and debounces errors so a write failure can't break a task save.
+- **`/buddy` preview-and-approve gate** — every dispatch now renders a table of (agent, task, dependsOn) and waits for `go` before any `create_task` fires. Branches on user reply: clear approval, change request (re-render), explicit decline (abort), or ambiguous (re-prompt). Prevents multi-agent chains from firing without review.
+- **Prompting-standards pass on `commands/buddy.md`** — positive imperative phrasing, explicit stop markers, 4-way reply branch specification, and worked examples that show the preview → `go` flow end-to-end.
+
+### Fixed
+
+- **`pentaster` → `pentester`** typo swept across agents, knowledge docs, and the `create-agent` skill (CHANGELOG preserves historical spelling).
+
+### Docs
+
+- `README.md` drops the manual `.gitignore` instructions (now automatic).
+- `knowledge/task-tracker-api.md` documents that `create_task` only fires after user approval.
+
 ## [0.1.0] — 2026-04-20
 
 First public preview release.
@@ -29,4 +48,5 @@ First public preview release.
 - `git filter-repo` history scrub — rotated Context7 key removed from all blobs and binaries before publish.
 - Retired Gemini-CLI infra: Rust launcher, 5 legacy MCPs, knowledge bootloaders.
 
+[0.2.0]: https://github.com/rohirikman/dev-team/releases/tag/v0.2.0
 [0.1.0]: https://github.com/rohirikman/dev-team/releases/tag/v0.1.0

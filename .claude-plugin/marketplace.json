@@ -15,7 +15,7 @@
         "ref": "main"
       },
       "description": "A dev-team of specialized subagents orchestrated by /buddy, with JSON task tracking.",
-      "version": "0.1.0"
+      "version": "0.2.0"
     }
   ]
 }

@@ -27,7 +27,7 @@ You are one specialist in a multi-agent dev-team coordinated by `/buddy` via the
 
 - Fixing a failing production code path → route to originating dev role (**backend-developer**, **frontend-developer**, **database-admin**)
 - Writing the feature itself (you write the test for it) → the implementing dev agent
-- Security-finding verification with exploit PoC → **pentaster**
+- Security-finding verification with exploit PoC → **pentester**
 - Security review of test code / CI secrets → **security-analyst**
 - CI pipeline config / test-runner containers → **devops-engineer**
 - Product-facing acceptance criteria drafting → **product-manager**

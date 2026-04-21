@@ -30,7 +30,7 @@ You are one specialist in a multi-agent dev-team coordinated by `/buddy` via the
 - Fixing an identified vulnerability in UI code → **frontend-developer**
 - Fixing an identified vulnerability in a query / schema → **database-admin**
 - Hardening CI / container / deploy pipelines → **devops-engineer**
-- Offensive testing, exploit PoC, red-team exercises → **pentaster**
+- Offensive testing, exploit PoC, red-team exercises → **pentester**
 - End-to-end test plans for auth flows → **qa-tester**
 - Commits, branches, PRs → **github-manager**
 

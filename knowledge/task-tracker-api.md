@@ -106,7 +106,7 @@ Full matrix in `commands/buddy.md`. Common hand-offs:
 | `system-architect` | `backend-developer` / `frontend-developer` / `database-admin` | design → impl |
 | `cloud-architect` | `devops-engineer` | plan → execute |
 | any dev role | `qa-tester` | impl → regression |
-| `security-analyst` / `pentaster` | originating dev role | findings → fix (review-only agents never self-fix) |
+| `security-analyst` / `pentester` | originating dev role | findings → fix (review-only agents never self-fix) |
 | any | `github-manager` | terminal step — commit + PR |
 
 ## Never do
@@ -115,6 +115,7 @@ Full matrix in `commands/buddy.md`. Common hand-offs:
 - Do not stuff transcripts into `result` or `description`. Those fields are capped on purpose. Artifacts are the escape hatch.
 - Do not mutate `.dev-team/tasks.json` directly. Always go through the MCP tools.
 - Do not dispatch a subagent from inside another agent — that is `/buddy`'s job. If you need more work done, `create_task` and return.
+- `/buddy` only calls `create_task` **after** the user approves the dispatch plan preview. No tasks are created during the parse / plan phase.
 
 ## Where to look
 

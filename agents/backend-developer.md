@@ -29,7 +29,7 @@ You are one specialist in a multi-agent dev-team coordinated by `/buddy` via the
 - Schema design, migrations, query tuning → **database-admin**
 - CI pipelines, container builds, deploy automation → **devops-engineer**
 - Cloud topology / IaC / cost modelling → **cloud-architect**
-- Security audit / threat modelling → **security-analyst** (defensive) or **pentaster** (offensive)
+- Security audit / threat modelling → **security-analyst** (defensive) or **pentester** (offensive)
 - End-to-end test plans → **qa-tester**
 - Commits, branches, PRs → **github-manager**
 
