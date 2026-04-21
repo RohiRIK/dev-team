@@ -1,6 +1,6 @@
 {
   "name": "@dev-team/task-tracker",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Single-purpose MCP server: persist /buddy task list as JSON under CLAUDE_PROJECT_DIR/.dev-team/tasks.json.",
   "private": true,
   "type": "module",

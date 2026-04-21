@@ -9,13 +9,9 @@
   "plugins": [
     {
       "name": "dev-team",
-      "source": {
-        "source": "github",
-        "repo": "RohiRIK/dev-team",
-        "ref": "main"
-      },
+      "source": "./",
       "description": "A dev-team of specialized subagents orchestrated by /buddy, with JSON task tracking.",
-      "version": "0.1.0"
+      "version": "0.2.1"
     }
   ]
 }

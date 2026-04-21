@@ -11,7 +11,7 @@ import { health } from "./tools/health.ts"
 import { ListTasksInput, listTasks } from "./tools/listTasks.ts"
 import { UpdateTaskInput, updateTask } from "./tools/updateTask.ts"
 
-const VERSION = "0.1.0"
+const VERSION = "0.2.1"
 
 const server = new Server(
   { name: "task-tracker", version: VERSION },

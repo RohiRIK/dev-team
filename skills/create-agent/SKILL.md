@@ -27,7 +27,7 @@ Every agent file under `agents/<slug>.md` must satisfy:
 1. **YAML frontmatter** — required keys: `name`, `description`, `tools`. Recommended: `model: inherit`.
 2. **7 canonical sections** (verbatim headings, in order): `Role`, `When to use`, `When NOT to use (Boundaries)`, `Workflow`, `Tools`, `Constraints`, `Worked example`.
 3. **Body ≤ 200 lines.** Overflow goes to `knowledge/<slug>-refs.md`.
-4. **Default-deny tool allowlist** per spec §5.4. Review-only agents (`security-analyst`, `pentaster`) must not have `Write` or `Edit`.
+4. **Default-deny tool allowlist** per spec §5.4. Review-only agents (`security-analyst`, `pentester`) must not have `Write` or `Edit`.
 5. **No absolute home paths** — macOS `/U⁠sers/`, Linux `/h⁠ome/`, or Windows `C:\U⁠sers\` patterns are forbidden. Use `~` or relative paths.
 6. **No Gemini residue** — no `UFC Hydration`, no `execute_agent`, no `.gemini/` references.
 

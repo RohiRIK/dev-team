@@ -25,7 +25,7 @@ Note: spec §5.4 does not currently list the `Skill` tool column. The pilot (`ag
 | `system-architect` | ✓ | ✓ | ✓ | ✓ | — | — | Design-only — writes specs/diagrams, no execution |
 | `qa-tester` | ✓ | ✓ | ✓ | — | ✓ | ✓ | Edits existing tests, runs suites; no new-file authorship of prod code |
 | `security-analyst` | ✓ | ✓ | ✓ | — | — | ✓ | **Review-only** — no Write/Edit; Bash for scanners (semgrep, trivy) |
-| `pentaster` | ✓ | ✓ | ✓ | — | — | ✓ | **Review-only** — no Write/Edit; Bash for offensive tooling |
+| `pentester` | ✓ | ✓ | ✓ | — | — | ✓ | **Review-only** — no Write/Edit; Bash for offensive tooling |
 | `ml-engineer` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Full dev loop for model/data code |
 | `ui-ux-designer` | ✓ | ✓ | ✓ | ✓ | ✓ | — | Static artefacts (Figma exports, SVGs, MD docs); no execution |
 | `github-manager` | ✓ | ✓ | ✓ | — | — | ✓ | `gh` CLI via Bash; never directly edits source — goes through PRs |
@@ -34,7 +34,7 @@ Note: spec §5.4 does not currently list the `Skill` tool column. The pilot (`ag
 
 ## Review-only agents (hard rule)
 
-`security-analyst` and `pentaster` **must not** have `Write` or `Edit` in their allowlist. When they identify a fix, they hand off to an agent with the right allowlist via `create_task(agent: <target>)`.
+`security-analyst` and `pentester` **must not** have `Write` or `Edit` in their allowlist. When they identify a fix, they hand off to an agent with the right allowlist via `create_task(agent: <target>)`.
 
 When `verify-agents.ts` is extended with a per-agent allowlist check, it should hard-fail if these two slugs declare `Write` or `Edit`.
 

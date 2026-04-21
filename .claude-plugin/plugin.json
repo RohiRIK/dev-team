@@ -1,6 +1,6 @@
 {
   "name": "dev-team",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "A dev-team of specialized subagents orchestrated by /buddy, with JSON task tracking.",
   "author": {
     "name": "Rohi Rikman",
