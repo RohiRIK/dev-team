@@ -2,7 +2,7 @@
 name: frontend-developer
 description: "Use when implementing UI components, React/Next.js pages, client-side state, styling with Tailwind/CSS, or frontend unit / component tests. Owns the full implement → test → verify-in-browser loop for client-side code."
 tools: Read, Grep, Glob, Write, Edit, Bash, Skill
-engines: claude, opencode
+engines: claude, opencode, aider, codex, cursor-agent
 model: inherit
 ---
 

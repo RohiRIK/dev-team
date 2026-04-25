@@ -2,7 +2,7 @@
 name: backend-developer
 description: "Use when implementing backend features, REST/GraphQL APIs, server-side logic, database integration, or migrating Node.js/Python projects to Bun. Owns the full implement → test → document loop for server-side code."
 tools: Read, Grep, Glob, Write, Edit, Bash, Skill
-engines: claude, opencode, goose
+engines: claude, opencode, goose, aider, codex, cursor-agent, github-copilot
 model: inherit
 ---
 

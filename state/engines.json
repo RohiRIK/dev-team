@@ -27,6 +27,41 @@
       "args_template": ["{{prompt_file}}"],
       "stdin_ok": true,
       "env_passthrough": ["PATH", "HOME", "MINIMAX_API_KEY"]
+    },
+    "aider": {
+      "command": "aider",
+      "prompt_flag": "--message-file",
+      "args_template": ["--message-file", "{{prompt_file}}", "--yes-always", "--no-stream"],
+      "stdin_ok": false,
+      "env_passthrough": ["PATH", "HOME", "OPENAI_API_KEY", "ANTHROPIC_API_KEY"]
+    },
+    "github-copilot": {
+      "command": "gh",
+      "prompt_flag": "suggest",
+      "args_template": ["copilot", "suggest", "-t", "shell", "{{prompt_file}}"],
+      "stdin_ok": false,
+      "env_passthrough": ["PATH", "HOME", "GH_TOKEN", "GITHUB_TOKEN"]
+    },
+    "codex": {
+      "command": "codex",
+      "prompt_flag": "exec",
+      "args_template": ["exec", "--full-auto", "{{prompt_file}}"],
+      "stdin_ok": false,
+      "env_passthrough": ["PATH", "HOME", "OPENAI_API_KEY"]
+    },
+    "cursor-agent": {
+      "command": "cursor-agent",
+      "prompt_flag": "--prompt-file",
+      "args_template": ["--prompt-file", "{{prompt_file}}"],
+      "stdin_ok": false,
+      "env_passthrough": ["PATH", "HOME", "CURSOR_API_KEY"]
+    },
+    "pi": {
+      "command": "pi",
+      "prompt_flag": "--message-file",
+      "args_template": ["chat", "--message-file", "{{prompt_file}}"],
+      "stdin_ok": false,
+      "env_passthrough": ["PATH", "HOME", "PI_API_KEY"]
     }
   }
 }
