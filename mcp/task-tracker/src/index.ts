@@ -6,6 +6,11 @@ import { z } from "zod"
 import { loadState, saveState } from "./store.ts"
 import { CompleteTaskInput, completeTask } from "./tools/completeTask.ts"
 import { CreateTaskInput, createTask } from "./tools/createTask.ts"
+import {
+  type DispatchDeps,
+  DispatchEngineInput,
+  dispatchEngine,
+} from "./tools/dispatchEngine.ts"
 import { GetTaskInput, getTask } from "./tools/getTask.ts"
 import { health } from "./tools/health.ts"
 import { ListTasksInput, listTasks } from "./tools/listTasks.ts"
@@ -71,11 +76,39 @@ const tools = [
     inputSchema: zodToJsonSchema(CompleteTaskInput),
   },
   {
+    name: "dispatch_engine",
+    description:
+      "Dispatch a task to an external CLI engine (gemini-cli, goose, opencode, …). Gated behind DEV_TEAM_MULTI_ENGINE=1. Writes the prompt to .dev-team/prompts/<task_id>.txt, streams stdout to .dev-team/artifacts/<task_id>.log, then completes or blocks the task based on exit code.",
+    inputSchema: zodToJsonSchema(DispatchEngineInput),
+  },
+  {
     name: "health",
     description: "Return server health: status, name, version, and current task count. Read-only.",
     inputSchema: { type: "object", properties: {}, required: [] },
   },
 ]
+
+// Production DispatchDeps — tests inject their own stubs.
+const defaultDispatchDeps: DispatchDeps = {
+  which: (cmd) => {
+    const resolved = Bun.which(cmd)
+    return resolved ?? null
+  },
+  spawn: async ({ command, args, env }) => {
+    const proc = Bun.spawn({
+      cmd: [command, ...args],
+      env,
+      stdout: "pipe",
+      stderr: "pipe",
+    })
+    const [stdout, stderr] = await Promise.all([
+      new Response(proc.stdout).text(),
+      new Response(proc.stderr).text(),
+    ])
+    const exitCode = await proc.exited
+    return { exitCode, stdout, stderr }
+  },
+}
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools }))
 
@@ -106,6 +139,21 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
         const { state: next, result } = completeTask(state, CompleteTaskInput.parse(args))
         await saveState(next)
         return { content: [{ type: "text", text: JSON.stringify(result) }] }
+      }
+      case "dispatch_engine": {
+        const parsed = DispatchEngineInput.parse(args)
+        const { state: next, error } = await dispatchEngine(
+          state,
+          parsed,
+          defaultDispatchDeps,
+        )
+        await saveState(next)
+        const task = next.tasks.find((t) => t.id === parsed.task_id)
+        return {
+          content: [
+            { type: "text", text: JSON.stringify({ task, error }) },
+          ],
+        }
       }
       case "health": {
         const result = health(state, VERSION)

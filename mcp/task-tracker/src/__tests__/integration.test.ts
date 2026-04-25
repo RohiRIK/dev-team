@@ -39,11 +39,12 @@ afterEach(async () => {
 })
 
 describe("task-tracker stdio integration", () => {
-  test("lists all 6 tools", async () => {
+  test("lists all 7 tools", async () => {
     const { tools } = await client.listTools()
     expect(tools.map((t) => t.name).sort()).toEqual([
       "complete_task",
       "create_task",
+      "dispatch_engine",
       "get_task",
       "health",
       "list_tasks",

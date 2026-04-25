@@ -1,0 +1,32 @@
+{
+  "engines": {
+    "gemini-cli": {
+      "command": "gemini",
+      "prompt_flag": "--prompt-file",
+      "args_template": ["{{prompt_file}}"],
+      "stdin_ok": true,
+      "env_passthrough": ["PATH", "HOME", "GEMINI_API_KEY"]
+    },
+    "opencode": {
+      "command": "opencode",
+      "prompt_flag": "-p",
+      "args_template": ["run", "-p", "{{prompt_file}}"],
+      "stdin_ok": true,
+      "env_passthrough": ["PATH", "HOME", "OPENCODE_API_KEY"]
+    },
+    "goose": {
+      "command": "goose",
+      "prompt_flag": "--instructions",
+      "args_template": ["run", "--instructions", "{{prompt_file}}"],
+      "stdin_ok": false,
+      "env_passthrough": ["PATH", "HOME"]
+    },
+    "minimax-cli": {
+      "command": "minimax",
+      "prompt_flag": "--prompt-file",
+      "args_template": ["{{prompt_file}}"],
+      "stdin_ok": true,
+      "env_passthrough": ["PATH", "HOME", "MINIMAX_API_KEY"]
+    }
+  }
+}
