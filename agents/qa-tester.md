@@ -2,6 +2,7 @@
 name: qa-tester
 description: "Use when writing or updating E2E / integration / regression tests, authoring a test plan, verifying a bug fix, triaging flaky tests, or running the suite in CI-like conditions. Edits existing tests; does not author production code."
 tools: Read, Grep, Glob, Edit, Bash, Skill
+engines: claude, gemini-cli
 model: inherit
 ---
 
