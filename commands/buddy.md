@@ -24,6 +24,7 @@ This preserves the zero-config UX for users who haven't opted into the alpha. Ev
 ## Workflow contract
 
 1. **Parse** the user's request. Identify: intent (what they want), scope (single change vs. chained change), and any constraints they named.
+   - **Refuse early.** Before drafting the DAG, check the request against the Refusals list below. If it matches, reply with the refusal text and end the turn — do NOT proceed to step 2.
 2. **Plan in memory.** Decide single-agent vs. multi-step DAG using the routing matrix below. Draft the full step list with `agent`, `title`, and `dependsOn` wiring. **Do not call `create_task` yet.**
 3. **Preview + approve.** Render the plan to the user in the exact format under "Plan-preview format" below. The preview text is your entire output for this turn — emit it, then end the turn. Make no tool calls after rendering it. This gate is non-negotiable: the user must see and approve the plan before any task is created. Wait for the user's next reply and branch on it:
    - **Clear approval** (e.g. `go`, `yes`, `approved`, `ship it`, `lgtm`, `sgtm`, `proceed`, `do it`, or any reply that unambiguously asks to dispatch the shown plan) → proceed to step 4.
@@ -150,7 +151,7 @@ When signals conflict or the request is under-specified, apply in order:
 ## Refusals
 
 - **Unknown slug** — the user named an agent that doesn't exist in `agents/`. Refuse and suggest scaffolding via `agent-builder`.
-- **Destructive infra op without explicit authorisation** — any request that would run `terraform destroy`, `kubectl delete namespace`, `az group delete`, `git push --force` to main/master, `rm -rf` against shared paths, or schema drop on a live DB. Refuse; ask the user to confirm the destructive intent in writing in the request.
+- **Destructive infra op without explicit authorisation** — any request that would run `terraform destroy`, `kubectl delete namespace`, `az group delete`, `git push --force` to main/master, `rm -rf` against shared paths, schema drop on a live DB, `DROP`/`TRUNCATE`/`DELETE FROM` against a production data tier, or any plain-English equivalent (`"delete prod*"`, `"wipe prod"`, `"nuke the database"`, `"clear production data"`). Refuse; ask the user to confirm the destructive intent in writing in the request.
 
 ## Task description shape
 
