@@ -94,6 +94,83 @@ See [agents.md](./agents.md) for the full roster and [create-agent.md](./create-
 
 One skill ships with this version: `create-agent`. It owns the full lifecycle of a dev-team agent (create, port, research, validate, update) and is invoked by the `agent-builder` agent. Additional skills (`CodingStandards`, `TddWorkflow`, etc.) land in subsequent minor versions. See [create-agent.md](./create-agent.md).
 
+## Multi-engine dispatch (alpha, v0.3.0)
+
+Opt-in routing of individual tasks to external CLI engines (`gemini-cli`, `goose`, `opencode`, `minimax-cli`) instead of running them in-session with Claude. Gated behind `DEV_TEAM_MULTI_ENGINE=1`. Full spec: [`../specs/multi-engine-dispatch.md`](../specs/multi-engine-dispatch.md).
+
+**Why.** Token efficiency (long-running or code-heavy tasks run on cheaper or local engines), user-controlled routing (pick the engine that fits the task class), and a single place to wire new engines without touching `/buddy`.
+
+**Dispatch split — two paths, one orchestrator.**
+
+After `create_task`, `/buddy` routes each task by the Engine cell on the approved plan. There are exactly two dispatch paths:
+
+```
+                 /buddy (after approval)
+                       |
+        +--------------+---------------+
+        |                              |
+        v                              v
+  Engine = claude              Engine = gemini-cli / opencode / goose / minimax-cli
+        |                              |
+        v                              v
+  Task tool                    mcp__plugin_dev-team_task-tracker__dispatch_engine
+        |                              |
+        v                              v
+  Claude subagent              Bun.spawn(engine.command, args_template)
+  runs in-session              external CLI subprocess (separate process, separate context)
+  (same context window)                |
+        |                              v
+        |              .dev-team/prompts/<id>.txt   <-- prompt body (file-passed, never argv)
+        |              .dev-team/artifacts/<id>.log <-- stdout stream
+        |              .dev-team/artifacts/<id>.err <-- stderr stream
+        |                              |
+        +--------------+---------------+
+                       |
+                       v
+          task-tracker MCP records terminal state
+          (completed | blocked) — never in_progress
+```
+
+**Per-task lifecycle inside the dispatch_engine path.**
+
+```
+dispatch_engine (MCP)     resolve engine from state/engines.json (loadEngineRegistry)
+        |
+        v
+update_task(in_progress)  implicit claim
+        |
+        v
+write .dev-team/prompts/<id>.txt        prompt body — file-passed, never argv
+        |
+        v
+spawn engine.command [args_template]    direct exec, no shell, restricted env
+        |
+        v
+stream stdout -> .dev-team/artifacts/<id>.log
+        |
+        +-- exit 0   -> complete_task(result = stdout tail, artifact = log)
+        +-- exit ≠0  -> update_task(status: blocked, result = stderr first 500 chars)
+        +-- spawn throw -> same blocked path (never stuck in_progress)
+```
+
+Agents that opt in declare an `engines:` list in their frontmatter (pilot set: 4 agents in v0.3.0-alpha). `scripts/verify-agents.ts` enforces the field is a subset of the registry keys.
+
+**File layout.**
+
+- `state/engines.json` — committed registry of allowed engines (`command`, `args_template`, `prompt_flag`, `stdin_ok`, `env_passthrough`).
+- `.dev-team/prompts/<id>.txt` — per-task prompt body, gitignored with the rest of `.dev-team/`.
+- `.dev-team/artifacts/<id>.log` — stdout transcript, referenced from `task.artifacts[]`.
+
+**Security stance.**
+
+- Prompts are **file-passed, never argv** — no command-line length or escaping surface.
+- Subprocess is **exec directly**, never through `/bin/sh -c` — no shell metacharacter exposure.
+- Child env is an **explicit allowlist** per engine (`env_passthrough`), not the parent's full env.
+- Missing binary → **auto-downgrade to claude** with a hint in the tool error; no partial spawn.
+- Feature is **env-gated** while in alpha — shipped off by default.
+
+**Rollout.** v0.3.0-alpha behind `DEV_TEAM_MULTI_ENGINE=1`. Four pilot agents declare `engines:` today. Once the dispatch tool has soaked through real runs, the flag flips to default-on in a later minor release. Until then, agents without the env var see the plugin behave exactly as in 0.2.x.
+
 ## What this plugin is not
 
 - Not a background daemon — `/buddy` runs inside one Claude Code session.
