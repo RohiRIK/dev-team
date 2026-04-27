@@ -1,6 +1,12 @@
 import { type FSWatcher, watch } from "node:fs"
 import { dirname, join } from "node:path"
-import { renderColumns, renderErrorPage, renderPage } from "./components.ts"
+import {
+  renderColumns,
+  renderErrorPage,
+  renderGraphPage,
+  renderPage,
+  renderTimelinePage,
+} from "./components.ts"
 import { TasksParseError, loadTasks, resolveWorkspace, tasksFilePath } from "./store.ts"
 
 const PORT = Number(process.env.PORT ?? 3000)
@@ -160,6 +166,42 @@ const server = Bun.serve({
             { error: "parse_error", path: err.path, message: err.message },
             { status: 500 },
           )
+        }
+        throw err
+      }
+    }
+
+    /* Dependency graph */
+    if (url.pathname === "/graph") {
+      try {
+        const state = await loadTasks()
+        return new Response(renderGraphPage(state.tasks), {
+          headers: { "content-type": "text/html; charset=utf-8" },
+        })
+      } catch (err) {
+        if (err instanceof TasksParseError) {
+          return new Response(renderErrorPage(err.path, err.message), {
+            status: 200,
+            headers: { "content-type": "text/html; charset=utf-8" },
+          })
+        }
+        throw err
+      }
+    }
+
+    /* Completion timeline */
+    if (url.pathname === "/timeline") {
+      try {
+        const state = await loadTasks()
+        return new Response(renderTimelinePage(state.tasks), {
+          headers: { "content-type": "text/html; charset=utf-8" },
+        })
+      } catch (err) {
+        if (err instanceof TasksParseError) {
+          return new Response(renderErrorPage(err.path, err.message), {
+            status: 200,
+            headers: { "content-type": "text/html; charset=utf-8" },
+          })
         }
         throw err
       }
