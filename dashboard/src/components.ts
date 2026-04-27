@@ -177,6 +177,7 @@ export function renderColumn(col: Column, tasks: Task[], filterAgent: string | n
 /* ── Columns shell (used by /api/tasks partial) ────────────────────────── */
 
 export function renderColumns(tasks: Task[], filterAgent: string | null): string {
+  if (tasks.length === 0) return renderEmptyBoard()
   return COLUMNS.map((col) => renderColumn(col, tasks, filterAgent)).join("")
 }
 
@@ -342,6 +343,24 @@ export function renderPage(inputs: BoardPageInputs): string {
     updatedAtIso: state.updatedAt,
   })
 
+  const graphPanel = `
+  <details class="panel-graph">
+    <summary>Dependency graph</summary>
+    <div class="panel-graph-body">
+      <a href="/graph" class="panel-link" target="_blank" rel="noopener">Open full graph ↗</a>
+      ${renderGraph(state.tasks)}
+    </div>
+  </details>`
+
+  const timelinePanel = `
+  <details class="panel-timeline">
+    <summary>Completion timeline</summary>
+    <div class="panel-timeline-body">
+      <a href="/timeline" class="panel-link" target="_blank" rel="noopener">Open full timeline ↗</a>
+      ${renderTimeline(state.tasks)}
+    </div>
+  </details>`
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -352,9 +371,193 @@ export function renderPage(inputs: BoardPageInputs): string {
 </head>
 <body>
   ${header}
-  <main id="board" role="region" aria-label="Kanban board" tabindex="-1">${main}</main>
+  <main id="board" role="region" aria-label="Kanban board" tabindex="-1" data-task-count="${total}">${main}</main>
+  ${graphPanel}
+  ${timelinePanel}
   ${renderDrawer()}
   <script src="/client.js" defer></script>
+</body>
+</html>`
+}
+
+/* ── Graph ─────────────────────────────────────────────────────────────── */
+
+const STATUS_ORDER: readonly TaskStatus[] = [
+  "pending",
+  "in_progress",
+  "blocked",
+  "completed",
+  "cancelled",
+]
+
+const NODE_W = 160
+const NODE_H = 40
+const COL_GAP = 80
+const ROW_GAP = 16
+const PAD_X = 24
+const PAD_Y = 24
+
+export function renderGraph(tasks: Task[]): string {
+  const hasDeps = tasks.some((t) => t.dependsOn.length > 0)
+  if (tasks.length === 0 || !hasDeps) {
+    return `<p class="empty-graph">No dependency relationships yet.</p>`
+  }
+
+  // Group tasks into columns by status order
+  const columns: Task[][] = STATUS_ORDER.map((s) => tasks.filter((t) => t.status === s))
+
+  // Compute node positions
+  const nodePos = new Map<string, { cx: number; cy: number }>()
+  let x = PAD_X
+  for (const col of columns) {
+    let y = PAD_Y
+    for (const task of col) {
+      nodePos.set(task.id, { cx: x + NODE_W / 2, cy: y + NODE_H / 2 })
+      y += NODE_H + ROW_GAP
+    }
+    x += NODE_W + COL_GAP
+  }
+
+  const totalW = PAD_X + STATUS_ORDER.length * (NODE_W + COL_GAP) - COL_GAP + PAD_X
+  const maxColHeight = Math.max(...columns.map((c) => c.length))
+  const totalH = PAD_Y + maxColHeight * (NODE_H + ROW_GAP) - ROW_GAP + PAD_Y
+
+  // Build edges
+  const edges: string[] = []
+  for (const task of tasks) {
+    const to = nodePos.get(task.id)
+    if (!to) continue
+    for (const depId of task.dependsOn) {
+      const from = nodePos.get(depId)
+      if (!from) continue
+      const x1 = from.cx + NODE_W / 2
+      const y1 = from.cy
+      const x2 = to.cx - NODE_W / 2
+      const y2 = to.cy
+      const mx = (x1 + x2) / 2
+      edges.push(
+        `<path d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}" class="graph-edge" fill="none" />`,
+      )
+    }
+  }
+
+  // Build nodes
+  const nodes: string[] = []
+  for (const task of tasks) {
+    const pos = nodePos.get(task.id)
+    if (!pos) continue
+    const col = COLUMNS.find((c) => c.status === task.status)
+    const fill = col?.bg ?? "rgba(24,24,27,.4)"
+    const stroke = col?.border ?? "rgba(63,63,70,.5)"
+    const rx = pos.cx - NODE_W / 2
+    const ry = pos.cy - NODE_H / 2
+    const label = task.title.length > 20 ? task.title.slice(0, 19) + "…" : task.title
+    const tooltipText = esc(`${task.title} | ${task.agent} | ${task.status}`)
+    nodes.push(`
+      <g class="graph-node" tabindex="0" role="img" aria-label="${esc(task.title)} — ${esc(task.agent)} (${esc(task.status)})">
+        <title>${tooltipText}</title>
+        <rect x="${rx}" y="${ry}" width="${NODE_W}" height="${NODE_H}" rx="6" ry="6"
+              style="fill:${fill};stroke:${stroke};stroke-width:1" />
+        <text x="${pos.cx}" y="${pos.cy + 5}" text-anchor="middle"
+              class="graph-node-text">${esc(label)}</text>
+      </g>`)
+  }
+
+  return `
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="${totalW}" height="${totalH}"
+     viewBox="0 0 ${totalW} ${totalH}"
+     role="img"
+     aria-label="Task dependency graph — ${tasks.length} tasks"
+     class="graph-svg">
+  ${edges.join("\n  ")}
+  ${nodes.join("\n  ")}
+</svg>`
+}
+
+export function renderGraphPage(tasks: Task[]): string {
+  const graph = renderGraph(tasks)
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>dev-team — Dependency Graph</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <h1><a href="/" class="header-home">dev-team</a></h1>
+      <span class="label">graph</span>
+    </div>
+    <a href="/" class="graph-back-link">← Back to board</a>
+  </header>
+  <main id="board" role="main" aria-label="Dependency graph" class="graph-main">
+    ${graph}
+  </main>
+</body>
+</html>`
+}
+
+/* ── Timeline ──────────────────────────────────────────────────────────── */
+
+export function renderTimeline(tasks: Task[]): string {
+  const completed = tasks.filter((t) => t.status === "completed" && t.completedAt !== null)
+  if (completed.length === 0) {
+    return `<p class="empty-timeline">No completed tasks yet.</p>`
+  }
+
+  // Group by YYYY-MM-DD
+  const bucketMap = new Map<string, number>()
+  for (const task of completed) {
+    // completedAt is non-null here by filter above
+    const day = (task.completedAt as string).slice(0, 10)
+    bucketMap.set(day, (bucketMap.get(day) ?? 0) + 1)
+  }
+
+  const days = [...bucketMap.keys()].sort()
+  const counts = days.map((d) => bucketMap.get(d) as number)
+  const max = Math.max(...counts)
+
+  const items = days
+    .map((day, i) => {
+      const count = counts[i]
+      return `
+    <li class="timeline-item">
+      <span class="timeline-date">${esc(day)}</span>
+      <div class="bar" style="--count:${count};--max:${max}">
+        <span>${count} task${count === 1 ? "" : "s"}</span>
+      </div>
+    </li>`
+    })
+    .join("")
+
+  return `<ul class="timeline" aria-label="Completion timeline">${items}
+</ul>`
+}
+
+export function renderTimelinePage(tasks: Task[]): string {
+  const timeline = renderTimeline(tasks)
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>dev-team — Completion Timeline</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <h1><a href="/" class="header-home">dev-team</a></h1>
+      <span class="label">timeline</span>
+    </div>
+    <a href="/" class="graph-back-link">← Back to board</a>
+  </header>
+  <main id="board" role="main" aria-label="Completion timeline" class="graph-main">
+    ${timeline}
+  </main>
 </body>
 </html>`
 }

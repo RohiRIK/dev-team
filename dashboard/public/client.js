@@ -152,6 +152,39 @@
 
   /* ── Refresh: pull HTML partial + JSON for drawer/filters ─────────── */
 
+  async function refreshPanels() {
+    try {
+      const [graphRes, timelineRes] = await Promise.all([
+        fetch("/graph"),
+        fetch("/timeline"),
+      ])
+      if (graphRes.ok) {
+        const html = await graphRes.text()
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(html, "text/html")
+        const incoming = doc.querySelector(".graph-main")
+        const existing = document.querySelector(".panel-graph .panel-graph-body")
+        if (incoming && existing) {
+          const link = existing.querySelector(".panel-link")
+          existing.innerHTML = (link ? link.outerHTML : "") + incoming.innerHTML
+        }
+      }
+      if (timelineRes.ok) {
+        const html = await timelineRes.text()
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(html, "text/html")
+        const incoming = doc.querySelector(".graph-main")
+        const existing = document.querySelector(".panel-timeline .panel-timeline-body")
+        if (incoming && existing) {
+          const link = existing.querySelector(".panel-link")
+          existing.innerHTML = (link ? link.outerHTML : "") + incoming.innerHTML
+        }
+      }
+    } catch (_e) {
+      /* panels are non-critical; fail silently */
+    }
+  }
+
   async function refresh() {
     try {
       const url = "/api/tasks"
@@ -166,6 +199,7 @@
       setConnState(evtSource && evtSource.readyState === 1 ? "connected" : "connecting")
       applyFilters()
       rebuildTagFilterIfNeeded()
+      refreshPanels()
     } catch (_e) {
       consecutiveFailures++
       if (consecutiveFailures >= 3) setConnState("lost")
@@ -291,8 +325,13 @@
     if (e.key === "Escape" && drawer.dataset.open === "true") closeDrawer()
   })
 
-  /* Initial run: pull JSON for drawer cache, then open SSE. */
-  refresh().then(() => {
+  /* Initial run: skip refresh when SSR already rendered zero tasks to avoid
+   * overwriting the .empty-board with empty column shells. The SSE
+   * tasks-updated handler still calls refresh() unconditionally so any
+   * subsequent change to a non-empty state is picked up immediately. */
+  const initialTaskCount = Number(board.dataset.taskCount ?? "-1")
+  const initialRefresh = initialTaskCount === 0 ? Promise.resolve() : refresh()
+  initialRefresh.then(() => {
     if (typeof EventSource === "function") {
       openSSE()
     } else {
