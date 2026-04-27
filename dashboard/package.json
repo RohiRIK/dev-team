@@ -1,0 +1,14 @@
+{
+  "name": "dev-team-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/server.ts",
+    "start": "bun src/server.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/bun": "latest"
+  }
+}
