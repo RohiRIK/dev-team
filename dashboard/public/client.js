@@ -152,6 +152,32 @@
 
   /* ── Refresh: pull HTML partial + JSON for drawer/filters ─────────── */
 
+  const domParser = new DOMParser()
+
+  async function splicePanel(url, detailsSel, bodySelector) {
+    const panel = document.querySelector(detailsSel)
+    if (!panel?.hasAttribute("open")) return
+    const res = await fetch(url)
+    if (!res.ok) return
+    const doc = domParser.parseFromString(await res.text(), "text/html")
+    const incoming = doc.querySelector(".graph-main")
+    const existing = document.querySelector(bodySelector)
+    if (!incoming || !existing) return
+    const link = existing.querySelector(".panel-link")
+    existing.innerHTML = (link ? link.outerHTML : "") + incoming.innerHTML
+  }
+
+  async function refreshPanels() {
+    try {
+      await Promise.all([
+        splicePanel("/graph", "details.panel-graph", ".panel-graph .panel-graph-body"),
+        splicePanel("/timeline", "details.panel-timeline", ".panel-timeline .panel-timeline-body"),
+      ])
+    } catch (_e) {
+      /* panels are non-critical; fail silently */
+    }
+  }
+
   async function refresh() {
     try {
       const url = "/api/tasks"
@@ -166,6 +192,7 @@
       setConnState(evtSource && evtSource.readyState === 1 ? "connected" : "connecting")
       applyFilters()
       rebuildTagFilterIfNeeded()
+      refreshPanels()
     } catch (_e) {
       consecutiveFailures++
       if (consecutiveFailures >= 3) setConnState("lost")
@@ -291,8 +318,10 @@
     if (e.key === "Escape" && drawer.dataset.open === "true") closeDrawer()
   })
 
-  /* Initial run: pull JSON for drawer cache, then open SSE. */
-  refresh().then(() => {
+  /* Skip initial refresh when SSR already shows zero tasks — avoids overwriting
+   * the .empty-board with empty column shells from the /api/tasks partial. */
+  const initialTaskCount = Number(board.dataset.taskCount ?? "-1")
+  ;(initialTaskCount === 0 ? Promise.resolve() : refresh()).then(() => {
     if (typeof EventSource === "function") {
       openSSE()
     } else {

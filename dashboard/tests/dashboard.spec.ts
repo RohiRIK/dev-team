@@ -784,24 +784,258 @@ test.describe("a11y", () => {
 })
 
 /* ═══════════════════════════════════════════════════════════════════════
-   P2 UNIMPLEMENTED — AC-11 / AC-12 (graph + timeline)
-   These ACs require UI views (graph, timeline) that were NOT implemented
-   in the shipped code (no route, no view-toggle, no rendering). Tests are
-   skipped with a clear note for the follow-on frontend-developer task.
+   AC-3 (extended) — data-task-count + empty-board + refresh() skip
+   Verifies the SSR attribute, the .empty-board render, and that no
+   /api/tasks call is made on load when data-task-count="0".
    ═══════════════════════════════════════════════════════════════════════ */
 
-test.describe("AC-11 dependency graph view (P2 — NOT IMPLEMENTED)", () => {
-  test.skip(true, "Graph view not implemented: no /graph route and no graph-rendering code found in components.ts or client.js. Frontend-developer must implement R12 before this test can pass.")
+test.describe("AC-3 (extended) empty state — data-task-count and refresh skip", () => {
+  let workspace: string
 
-  test("graph view renders nodes and edges", async () => {
-    // Placeholder — fill in when graph view ships
+  test.beforeAll(async () => {
+    workspace = await makeWorkspace("missing")
+    await startServer(workspace)
+  })
+
+  test.afterAll(async () => {
+    await stopServer()
+    await cleanWorkspace(workspace)
+  })
+
+  test("SSR <main> carries data-task-count=0 when tasks.json is missing", async () => {
+    const res = await fetch(`${BASE_URL}/`)
+    const html = await res.text()
+    // The page shell renders <main ... data-task-count="0"> for empty state
+    expect(html).toMatch(/data-task-count="0"/)
+  })
+
+  test(".empty-board is visible in the SSR response body", async ({ page }) => {
+    await page.goto(`${BASE_URL}/`)
+    // The empty-board div must exist in the DOM (may be replaced by client if count > 0,
+    // but when count=0 client.js skips refresh() so SSR content stays)
+    const emptyBoard = page.locator(".empty-board")
+    await expect(emptyBoard).toBeVisible()
+  })
+
+  test("no /api/tasks request is fired on initial load when data-task-count=0", async ({ page }) => {
+    const apiCalls: string[] = []
+    page.on("request", (req) => {
+      if (req.url().includes("/api/tasks")) apiCalls.push(req.url())
+    })
+    await page.goto(`${BASE_URL}/`)
+    // Wait enough time for any deferred refresh() to execute
+    await page.waitForTimeout(600)
+    // client.js early-exits: initialTaskCount===0 → skip refresh() → no /api/tasks request
+    expect(apiCalls).toHaveLength(0)
   })
 })
 
-test.describe("AC-12 completion timeline view (P2 — NOT IMPLEMENTED)", () => {
-  test.skip(true, "Timeline view not implemented: no /timeline route and no Gantt/bar-chart rendering found in components.ts or client.js. Frontend-developer must implement R13 before this test can pass.")
+/* ═══════════════════════════════════════════════════════════════════════
+   AC-11 — /graph route
+   GET /graph must return 200 with an SVG carrying role="img" and an
+   aria-label containing "dependency graph". When tasks with dependsOn
+   exist, at least one <title> element is present. When no deps exist,
+   .empty-graph is shown.
+   ═══════════════════════════════════════════════════════════════════════ */
 
-  test("timeline renders completed tasks as horizontal bars", async () => {
-    // Placeholder — fill in when timeline view ships
+test.describe("AC-11 dependency graph view", () => {
+  let workspaceWithDeps: string
+  let workspaceNoDeps: string
+
+  test.beforeAll(async () => {
+    workspaceWithDeps = await makeWorkspace(makeFullState())
+    await startServer(workspaceWithDeps)
+  })
+
+  test.afterAll(async () => {
+    await stopServer()
+    await cleanWorkspace(workspaceWithDeps)
+    await cleanWorkspace(workspaceNoDeps).catch(() => {})
+  })
+
+  test("GET /graph returns HTTP 200", async () => {
+    const res = await fetch(`${BASE_URL}/graph`)
+    expect(res.status).toBe(200)
+  })
+
+  test("/graph response has content-type text/html", async () => {
+    const res = await fetch(`${BASE_URL}/graph`)
+    expect(res.headers.get("content-type")).toMatch(/text\/html/)
+  })
+
+  test("/graph page contains SVG with role=img", async ({ page }) => {
+    await page.goto(`${BASE_URL}/graph`)
+    const svg = page.locator("svg[role='img']")
+    await expect(svg).toBeVisible()
+  })
+
+  test("/graph SVG aria-label contains 'dependency graph'", async ({ page }) => {
+    await page.goto(`${BASE_URL}/graph`)
+    const svg = page.locator("svg[role='img']")
+    const label = await svg.getAttribute("aria-label")
+    expect(label?.toLowerCase()).toContain("dependency graph")
+  })
+
+  test("/graph SVG contains <title> elements for tasks with dependsOn", async ({ page }) => {
+    // makeFullState has t_in_progress depending on t_pending, so graph renders with nodes
+    await page.goto(`${BASE_URL}/graph`)
+    const titles = page.locator("svg title")
+    const count = await titles.count()
+    expect(count).toBeGreaterThanOrEqual(1)
+  })
+
+  test("/graph shows .empty-graph when no dependency relationships exist", async () => {
+    // Create a workspace where all tasks have empty dependsOn
+    const { writeFile: wf } = await import("node:fs/promises")
+    const { join: pjoin } = await import("node:path")
+    const { mkdir } = await import("node:fs/promises")
+    workspaceNoDeps = await makeWorkspace()
+    const devTeamDir = pjoin(workspaceNoDeps, ".dev-team")
+    await mkdir(devTeamDir, { recursive: true })
+    const ts = "2026-04-27T10:00:00.000Z"
+    await wf(
+      pjoin(devTeamDir, "tasks.json"),
+      JSON.stringify({
+        version: 1,
+        sessionId: "s",
+        updatedAt: ts,
+        tasks: [
+          {
+            id: "t_solo",
+            agent: "qa-tester",
+            title: "Standalone",
+            description: "no deps",
+            status: "pending",
+            dependsOn: [],
+            createdAt: ts,
+            updatedAt: ts,
+            startedAt: null,
+            completedAt: null,
+            result: null,
+            artifacts: [],
+            tags: [],
+          },
+        ],
+      }),
+    )
+    await stopServer()
+    await startServer(workspaceNoDeps)
+
+    const res = await fetch(`${BASE_URL}/graph`)
+    const html = await res.text()
+    expect(html).toContain("empty-graph")
+
+    // Restore workspaceWithDeps server for subsequent tests (afterAll will stop it)
+    await stopServer()
+    await startServer(workspaceWithDeps)
+  })
+})
+
+/* ═══════════════════════════════════════════════════════════════════════
+   AC-12 — /timeline route
+   GET /timeline must return 200. .timeline list present when completed
+   tasks with completedAt exist. Day buckets correct. .empty-timeline
+   shown when no completed tasks. --count and --max CSS vars set on .bar.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+test.describe("AC-12 completion timeline view", () => {
+  let workspaceWithCompleted: string
+  let workspaceNoCompleted: string
+
+  test.beforeAll(async () => {
+    workspaceWithCompleted = await makeWorkspace(makeFullState())
+    await startServer(workspaceWithCompleted)
+  })
+
+  test.afterAll(async () => {
+    await stopServer()
+    await cleanWorkspace(workspaceWithCompleted)
+    await cleanWorkspace(workspaceNoCompleted).catch(() => {})
+  })
+
+  test("GET /timeline returns HTTP 200", async () => {
+    const res = await fetch(`${BASE_URL}/timeline`)
+    expect(res.status).toBe(200)
+  })
+
+  test("/timeline response has content-type text/html", async () => {
+    const res = await fetch(`${BASE_URL}/timeline`)
+    expect(res.headers.get("content-type")).toMatch(/text\/html/)
+  })
+
+  test("/timeline page contains .timeline element for completed tasks", async ({ page }) => {
+    await page.goto(`${BASE_URL}/timeline`)
+    const timeline = page.locator(".timeline")
+    await expect(timeline).toBeVisible()
+  })
+
+  test("/timeline day buckets are grouped by YYYY-MM-DD", async ({ page }) => {
+    // makeFullState has t_completed with completedAt = NOW = 2026-04-27T10:00:00.000Z
+    await page.goto(`${BASE_URL}/timeline`)
+    const dates = page.locator(".timeline-date")
+    const count = await dates.count()
+    expect(count).toBeGreaterThanOrEqual(1)
+    // Each date label must look like YYYY-MM-DD
+    for (const el of await dates.all()) {
+      const text = await el.textContent()
+      expect(text).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    }
+  })
+
+  test("/timeline .bar elements have --count and --max CSS custom properties", async ({ page }) => {
+    await page.goto(`${BASE_URL}/timeline`)
+    const bars = page.locator(".bar")
+    const count = await bars.count()
+    expect(count).toBeGreaterThanOrEqual(1)
+    for (const bar of await bars.all()) {
+      const style = await bar.getAttribute("style")
+      expect(style).toMatch(/--count:\d+/)
+      expect(style).toMatch(/--max:\d+/)
+    }
+  })
+
+  test("/timeline shows .empty-timeline when no completed tasks", async () => {
+    const { writeFile: wf } = await import("node:fs/promises")
+    const { join: pjoin } = await import("node:path")
+    const { mkdir } = await import("node:fs/promises")
+    workspaceNoCompleted = await makeWorkspace()
+    const devTeamDir = pjoin(workspaceNoCompleted, ".dev-team")
+    await mkdir(devTeamDir, { recursive: true })
+    const ts2 = "2026-04-27T10:00:00.000Z"
+    await wf(
+      pjoin(devTeamDir, "tasks.json"),
+      JSON.stringify({
+        version: 1,
+        sessionId: "s",
+        updatedAt: ts2,
+        tasks: [
+          {
+            id: "t_pend",
+            agent: "qa-tester",
+            title: "Pending only",
+            description: "not done",
+            status: "pending",
+            dependsOn: [],
+            createdAt: ts2,
+            updatedAt: ts2,
+            startedAt: null,
+            completedAt: null,
+            result: null,
+            artifacts: [],
+            tags: [],
+          },
+        ],
+      }),
+    )
+    await stopServer()
+    await startServer(workspaceNoCompleted)
+
+    const res = await fetch(`${BASE_URL}/timeline`)
+    const html = await res.text()
+    expect(html).toContain("empty-timeline")
+
+    // Restore completed workspace server
+    await stopServer()
+    await startServer(workspaceWithCompleted)
   })
 })

@@ -1,6 +1,13 @@
 import { type FSWatcher, watch } from "node:fs"
 import { dirname, join } from "node:path"
-import { renderColumns, renderErrorPage, renderPage } from "./components.ts"
+import {
+  renderColumns,
+  renderErrorPage,
+  renderGraphPage,
+  renderPage,
+  renderTimelinePage,
+} from "./components.ts"
+import type { Task } from "./types.ts"
 import { TasksParseError, loadTasks, resolveWorkspace, tasksFilePath } from "./store.ts"
 
 const PORT = Number(process.env.PORT ?? 3000)
@@ -47,6 +54,22 @@ function startWatcher(): FSWatcher | null {
       `[dashboard] fs.watch failed (${(err as Error).message}); SSE will idle, clients fall back to polling.\n`,
     )
     return null
+  }
+}
+
+/* ── Shared page-route handler ────────────────────────────────────────── */
+
+const HTML_HEADERS = { "content-type": "text/html; charset=utf-8" } as const
+
+async function handlePageRoute(render: (tasks: Task[]) => string): Promise<Response> {
+  try {
+    const state = await loadTasks()
+    return new Response(render(state.tasks), { headers: HTML_HEADERS })
+  } catch (err) {
+    if (err instanceof TasksParseError) {
+      return new Response(renderErrorPage(err.path, err.message), { status: 200, headers: HTML_HEADERS })
+    }
+    throw err
   }
 }
 
@@ -164,6 +187,9 @@ const server = Bun.serve({
         throw err
       }
     }
+
+    if (url.pathname === "/graph") return handlePageRoute(renderGraphPage)
+    if (url.pathname === "/timeline") return handlePageRoute(renderTimelinePage)
 
     return new Response("Not found", { status: 404 })
   },
