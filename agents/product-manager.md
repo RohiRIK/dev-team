@@ -2,7 +2,7 @@
 name: product-manager
 description: "Use when writing a PRD, drafting a roadmap, prioritising a backlog, producing user stories with acceptance criteria, or capturing product decisions. Specs and PRDs only — never code, never commits."
 tools: Read, Grep, Glob, Write, Skill
-model: inherit
+model: opus
 ---
 
 ## Role

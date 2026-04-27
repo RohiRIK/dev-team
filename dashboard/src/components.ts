@@ -106,8 +106,30 @@ function agentBadge(agent: string): string {
 
 /* ── Card ──────────────────────────────────────────────────────────────── */
 
+type Tier = "haiku" | "sonnet" | "opus"
+const KNOWN_TIERS = new Set(["haiku", "sonnet", "opus"])
+const TIER_INITIAL: Record<Tier, string> = { haiku: "H", sonnet: "S", opus: "O" }
+
 export function renderCard(task: Task): string {
-  const tags = task.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join("")
+  let tier: Tier | null = null
+  const visibleTagSpans: string[] = []
+  const filterParts: string[] = []
+
+  for (const t of task.tags) {
+    if (t.startsWith("model:")) {
+      const raw = t.slice(6)
+      if (KNOWN_TIERS.has(raw)) tier = raw as Tier
+    } else {
+      visibleTagSpans.push(`<span class="tag">${esc(t)}</span>`)
+      filterParts.push(t)
+    }
+  }
+
+  const visibleTags = visibleTagSpans.join("")
+  const filterTags = filterParts.join(" ")
+  const tierBadge = tier
+    ? `<span class="tier-badge tier-${tier}" aria-label="Model tier: ${tier}">${TIER_INITIAL[tier]}</span>`
+    : ""
 
   const deps =
     task.dependsOn.length > 0
@@ -123,7 +145,7 @@ export function renderCard(task: Task): string {
              data-task-id="${escId}"
              data-agent="${esc(task.agent)}"
              data-status="${esc(task.status)}"
-             data-tags="${esc(task.tags.join(" "))}"
+             data-tags="${esc(filterTags)}"
              data-search="${esc(`${task.title} ${task.description ?? ""} ${task.result ?? ""}`.toLowerCase())}"
              tabindex="0"
              role="button"
@@ -135,7 +157,7 @@ export function renderCard(task: Task): string {
       </div>
       <div class="badges">
         <span class="status-glyph" aria-hidden="true">${glyph}</span>
-        ${agentBadge(task.agent)}${tags}
+        ${agentBadge(task.agent)}${tierBadge}${visibleTags}
       </div>
       ${deps}
     </article>`

@@ -2,7 +2,7 @@
 name: cloud-architect
 description: "Use when choosing cloud topology (regions, zones, networking), picking concrete Azure / AWS / GCP resources, authoring IaC plans (Terraform, Bicep), modeling cloud cost, or producing HA / DR / landing-zone designs. Design-only — writes plans, never executes them."
 tools: Read, Grep, Glob, Write, Skill
-model: inherit
+model: opus
 ---
 
 ## Role

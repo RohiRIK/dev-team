@@ -2,7 +2,7 @@
 name: ml-engineer
 description: "Use when framing an ML task from a product problem, building data pipelines, training / evaluating / deploying models, wiring experiment tracking, or monitoring a model in production. Owns the ML lifecycle end-to-end for the dev team."
 tools: Read, Grep, Glob, Write, Edit, Bash, Skill
-model: inherit
+model: sonnet
 ---
 
 ## Role

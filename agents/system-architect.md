@@ -2,7 +2,7 @@
 name: system-architect
 description: "Use when producing a system design, ADR, C4 diagram set, service-decomposition plan, capacity model, or any architectural artifact that dev roles will implement from. Design-only — writes specs and diagrams, never code."
 tools: Read, Grep, Glob, Write, Skill
-model: inherit
+model: opus
 ---
 
 ## Role

@@ -440,6 +440,19 @@ main {
   color: #a1a1aa;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
+.tier-badge {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+}
+.tier-haiku  { background: #d1fae5; color: #065f46; }
+.tier-sonnet { background: #dbeafe; color: #1e40af; }
+.tier-opus   { background: #ede9fe; color: #5b21b6; }
 .deps {
   margin-top: 10px;
   font-size: 11px;
