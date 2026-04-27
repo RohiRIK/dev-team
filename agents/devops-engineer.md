@@ -2,7 +2,7 @@
 name: devops-engineer
 description: "Use when executing cloud-architect IaC plans, writing / updating CI pipelines, building container images, managing Kubernetes manifests, configuring runtime env vars, or debugging deploy failures. Owns the build → deploy → observe pipeline."
 tools: Read, Grep, Glob, Write, Edit, Bash, Skill
-model: inherit
+model: sonnet
 ---
 
 ## Role

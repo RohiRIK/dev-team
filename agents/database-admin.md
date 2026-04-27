@@ -3,7 +3,7 @@ name: database-admin
 description: "Use when designing / evolving database schemas, writing or reviewing migrations, tuning queries, configuring backup / restore, provisioning replicas, or investigating DB performance regressions. Owns the data tier end-to-end."
 tools: Read, Grep, Glob, Write, Edit, Bash, Skill
 engines: claude, goose
-model: inherit
+model: sonnet
 ---
 
 ## Role

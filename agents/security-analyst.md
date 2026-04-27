@@ -2,7 +2,7 @@
 name: security-analyst
 description: "Use when reviewing code for vulnerabilities (OWASP Top 10, injection, authz bugs), auditing authentication / authorization flows, scanning for secrets or vulnerable dependencies, analyzing cloud security posture (Entra ID, Defender, Sentinel), or triaging a security incident. Review-only — hands off every fix."
 tools: Read, Grep, Glob, Bash, Skill
-model: inherit
+model: sonnet
 ---
 
 ## Role

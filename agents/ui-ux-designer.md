@@ -2,7 +2,7 @@
 name: ui-ux-designer
 description: "Use when producing user flows, wireframes, interaction specs, design-system tokens, accessibility audits, or Figma-to-markup handoff notes. Design artifacts only — writes specs, tokens, and component contracts; never ships runnable code."
 tools: Read, Grep, Glob, Write, Edit, Skill
-model: inherit
+model: opus
 ---
 
 ## Role

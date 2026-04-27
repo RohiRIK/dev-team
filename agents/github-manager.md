@@ -2,7 +2,7 @@
 name: github-manager
 description: "Use when committing shipped work, opening / reviewing / merging PRs, managing issues and labels, cutting releases, or working with the GitHub CLI (`gh`). Central hand-off target — every dev agent creates a commit/PR task targeted here."
 tools: Read, Grep, Glob, Bash, Skill
-model: inherit
+model: haiku
 ---
 
 ## Role

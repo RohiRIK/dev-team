@@ -2,7 +2,7 @@
 name: agent-builder
 description: "Use when creating a new dev-team subagent, porting an agent from an external source (Gemini/Cursor/Cline), canonicalizing an existing agent to the plugin's 7-section spec, or sweeping all agents after the canonical structure changes. Scaffolds, ports, validates."
 tools: Read, Grep, Glob, Write, Edit, Bash, Skill
-model: inherit
+model: opus
 ---
 
 ## Role
