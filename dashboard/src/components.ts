@@ -403,15 +403,15 @@ export function renderGraph(tasks: Task[]): string {
     return `<p class="empty-graph">No dependency relationships yet.</p>`
   }
 
-  // Group tasks into columns by status order
-  const columns: Task[][] = STATUS_ORDER.map((s) => tasks.filter((t) => t.status === s))
+  const tasksByStatus = new Map<TaskStatus, Task[]>()
+  for (const s of STATUS_ORDER) tasksByStatus.set(s, tasks.filter((t) => t.status === s))
+  const columnByStatus = new Map(COLUMNS.map((c) => [c.status, c]))
 
-  // Compute node positions
   const nodePos = new Map<string, { cx: number; cy: number }>()
   let x = PAD_X
-  for (const col of columns) {
+  for (const s of STATUS_ORDER) {
     let y = PAD_Y
-    for (const task of col) {
+    for (const task of tasksByStatus.get(s)!) {
       nodePos.set(task.id, { cx: x + NODE_W / 2, cy: y + NODE_H / 2 })
       y += NODE_H + ROW_GAP
     }
@@ -419,10 +419,9 @@ export function renderGraph(tasks: Task[]): string {
   }
 
   const totalW = PAD_X + STATUS_ORDER.length * (NODE_W + COL_GAP) - COL_GAP + PAD_X
-  const maxColHeight = Math.max(...columns.map((c) => c.length))
+  const maxColHeight = Math.max(...STATUS_ORDER.map((s) => tasksByStatus.get(s)!.length))
   const totalH = PAD_Y + maxColHeight * (NODE_H + ROW_GAP) - ROW_GAP + PAD_Y
 
-  // Build edges
   const edges: string[] = []
   for (const task of tasks) {
     const to = nodePos.get(task.id)
@@ -441,12 +440,11 @@ export function renderGraph(tasks: Task[]): string {
     }
   }
 
-  // Build nodes
   const nodes: string[] = []
   for (const task of tasks) {
     const pos = nodePos.get(task.id)
     if (!pos) continue
-    const col = COLUMNS.find((c) => c.status === task.status)
+    const col = columnByStatus.get(task.status)
     const fill = col?.bg ?? "rgba(24,24,27,.4)"
     const stroke = col?.border ?? "rgba(63,63,70,.5)"
     const rx = pos.cx - NODE_W / 2
@@ -475,29 +473,32 @@ export function renderGraph(tasks: Task[]): string {
 </svg>`
 }
 
-export function renderGraphPage(tasks: Task[]): string {
-  const graph = renderGraph(tasks)
+function renderShellPage(title: string, label: string, pageId: string, ariaLabel: string, content: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>dev-team — Dependency Graph</title>
+  <title>dev-team — ${esc(title)}</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
   <header>
     <div class="header-left">
       <h1><a href="/" class="header-home">dev-team</a></h1>
-      <span class="label">graph</span>
+      <span class="label">${esc(label)}</span>
     </div>
     <a href="/" class="graph-back-link">← Back to board</a>
   </header>
-  <main id="board" role="main" aria-label="Dependency graph" class="graph-main">
-    ${graph}
+  <main id="${pageId}" role="main" aria-label="${esc(ariaLabel)}" class="graph-main">
+    ${content}
   </main>
 </body>
 </html>`
+}
+
+export function renderGraphPage(tasks: Task[]): string {
+  return renderShellPage("Dependency Graph", "graph", "graph-main", "Dependency graph", renderGraph(tasks))
 }
 
 /* ── Timeline ──────────────────────────────────────────────────────────── */
@@ -508,16 +509,14 @@ export function renderTimeline(tasks: Task[]): string {
     return `<p class="empty-timeline">No completed tasks yet.</p>`
   }
 
-  // Group by YYYY-MM-DD
   const bucketMap = new Map<string, number>()
   for (const task of completed) {
-    // completedAt is non-null here by filter above
-    const day = (task.completedAt as string).slice(0, 10)
+    const day = task.completedAt!.slice(0, 10)
     bucketMap.set(day, (bucketMap.get(day) ?? 0) + 1)
   }
 
   const days = [...bucketMap.keys()].sort()
-  const counts = days.map((d) => bucketMap.get(d) as number)
+  const counts = days.map((d) => bucketMap.get(d)!)
   const max = Math.max(...counts)
 
   const items = days
@@ -538,28 +537,7 @@ export function renderTimeline(tasks: Task[]): string {
 }
 
 export function renderTimelinePage(tasks: Task[]): string {
-  const timeline = renderTimeline(tasks)
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>dev-team — Completion Timeline</title>
-  <link rel="stylesheet" href="/styles.css" />
-</head>
-<body>
-  <header>
-    <div class="header-left">
-      <h1><a href="/" class="header-home">dev-team</a></h1>
-      <span class="label">timeline</span>
-    </div>
-    <a href="/" class="graph-back-link">← Back to board</a>
-  </header>
-  <main id="board" role="main" aria-label="Completion timeline" class="graph-main">
-    ${timeline}
-  </main>
-</body>
-</html>`
+  return renderShellPage("Completion Timeline", "timeline", "timeline-main", "Completion timeline", renderTimeline(tasks))
 }
 
 /* ── Error page (full HTML — used when JSON parse fails) ──────────────── */

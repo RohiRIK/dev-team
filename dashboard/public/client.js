@@ -152,34 +152,27 @@
 
   /* ── Refresh: pull HTML partial + JSON for drawer/filters ─────────── */
 
+  const domParser = new DOMParser()
+
+  async function splicePanel(url, detailsSel, bodySelector) {
+    const panel = document.querySelector(detailsSel)
+    if (!panel?.hasAttribute("open")) return
+    const res = await fetch(url)
+    if (!res.ok) return
+    const doc = domParser.parseFromString(await res.text(), "text/html")
+    const incoming = doc.querySelector(".graph-main")
+    const existing = document.querySelector(bodySelector)
+    if (!incoming || !existing) return
+    const link = existing.querySelector(".panel-link")
+    existing.innerHTML = (link ? link.outerHTML : "") + incoming.innerHTML
+  }
+
   async function refreshPanels() {
     try {
-      const [graphRes, timelineRes] = await Promise.all([
-        fetch("/graph"),
-        fetch("/timeline"),
+      await Promise.all([
+        splicePanel("/graph", "details.panel-graph", ".panel-graph .panel-graph-body"),
+        splicePanel("/timeline", "details.panel-timeline", ".panel-timeline .panel-timeline-body"),
       ])
-      if (graphRes.ok) {
-        const html = await graphRes.text()
-        const parser = new DOMParser()
-        const doc = parser.parseFromString(html, "text/html")
-        const incoming = doc.querySelector(".graph-main")
-        const existing = document.querySelector(".panel-graph .panel-graph-body")
-        if (incoming && existing) {
-          const link = existing.querySelector(".panel-link")
-          existing.innerHTML = (link ? link.outerHTML : "") + incoming.innerHTML
-        }
-      }
-      if (timelineRes.ok) {
-        const html = await timelineRes.text()
-        const parser = new DOMParser()
-        const doc = parser.parseFromString(html, "text/html")
-        const incoming = doc.querySelector(".graph-main")
-        const existing = document.querySelector(".panel-timeline .panel-timeline-body")
-        if (incoming && existing) {
-          const link = existing.querySelector(".panel-link")
-          existing.innerHTML = (link ? link.outerHTML : "") + incoming.innerHTML
-        }
-      }
     } catch (_e) {
       /* panels are non-critical; fail silently */
     }
@@ -325,13 +318,10 @@
     if (e.key === "Escape" && drawer.dataset.open === "true") closeDrawer()
   })
 
-  /* Initial run: skip refresh when SSR already rendered zero tasks to avoid
-   * overwriting the .empty-board with empty column shells. The SSE
-   * tasks-updated handler still calls refresh() unconditionally so any
-   * subsequent change to a non-empty state is picked up immediately. */
+  /* Skip initial refresh when SSR already shows zero tasks — avoids overwriting
+   * the .empty-board with empty column shells from the /api/tasks partial. */
   const initialTaskCount = Number(board.dataset.taskCount ?? "-1")
-  const initialRefresh = initialTaskCount === 0 ? Promise.resolve() : refresh()
-  initialRefresh.then(() => {
+  ;(initialTaskCount === 0 ? Promise.resolve() : refresh()).then(() => {
     if (typeof EventSource === "function") {
       openSSE()
     } else {
